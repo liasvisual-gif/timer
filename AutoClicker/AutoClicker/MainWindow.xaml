@@ -1,0 +1,258 @@
+﻿<Window x:Class="AutoClicker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoClicker"
+        mc:Ignorable="d"
+        Title="Auto Clicker - キーボード定点クリック" Height="650" Width="900">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- タイトルとプロファイル選択 -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="クリックポイント設定" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="2" Text="プロファイル:" VerticalAlignment="Center" Margin="20,0,5,0"/>
+            <ComboBox Grid.Column="3" x:Name="ProfileComboBox" SelectionChanged="ProfileComboBox_SelectionChanged"/>
+            <Button Grid.Column="4" Content="作成" Width="60" Margin="5,0" Click="SaveProfileButton_Click"/>
+            <Button Grid.Column="5" Content="削除" Width="60" Margin="5,0" Click="DeleteProfileButton_Click"/>
+        </Grid>
+
+        <!-- ヘルプテキストと緊急停止設定 -->
+        <Grid Grid.Row="1" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="ヒント: Qキーで現在のマウス位置を取得できます" 
+                       FontStyle="Italic" Foreground="Gray" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="1" Text="無効化キー:" VerticalAlignment="Center" Margin="10,0,5,0"/>
+            <TextBox Grid.Column="2" x:Name="EmergencyKeyTextBox" IsReadOnly="True" 
+                     PreviewKeyDown="EmergencyKeyTextBox_PreviewKeyDown" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" x:Name="EmergencyStatusTextBlock" Text="■ 有効" 
+                       Foreground="Green" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </Grid>
+
+        <!-- タブコントロール -->
+        <TabControl Grid.Row="2" Margin="0,0,0,10">
+            <!-- 定点クリックタブ -->
+            <TabItem Header="定点クリック">
+                <DataGrid x:Name="ClickPointsDataGrid" 
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          SelectionChanged="ClickPointsDataGrid_SelectionChanged"
+                          LoadingRow="ClickPointsDataGrid_LoadingRow">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="説明" Binding="{Binding Description}" Width="*"/>
+                        <DataGridTextColumn Header="X座標" Binding="{Binding X}" Width="70"/>
+                        <DataGridTextColumn Header="Y座標" Binding="{Binding Y}" Width="70"/>
+                        <DataGridTextColumn Header="デバイス" Binding="{Binding DeviceType}" Width="80"/>
+                        <DataGridTextColumn Header="キー/ボタン" Binding="{Binding KeyName}" Width="100"/>
+                        <DataGridTextColumn Header="連打速度(回/秒)" Binding="{Binding RapidSpeed}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- オーダークリックタブ -->
+            <TabItem Header="オーダークリック">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 左側：定点クリック一覧 -->
+                    <Grid Grid.Column="0" Margin="0,0,5,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="定点クリック一覧" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <DataGrid Grid.Row="1" x:Name="AvailableClickPointsDataGrid" 
+                                  AutoGenerateColumns="False" 
+                                  CanUserAddRows="False"
+                                  SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="No" Width="40" Binding="{Binding HotkeyId}"/>
+                                <DataGridTextColumn Header="説明" Binding="{Binding Description}" Width="*"/>
+                                <DataGridTextColumn Header="キー" Binding="{Binding KeyName}" Width="80"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                    
+                    <!-- 真ん中：順番作成エリア -->
+                    <Grid Grid.Column="1" Margin="5,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="実行順番" FontWeight="Bold" Margin="0,0,0,5"/>
+                        
+                        <DataGrid Grid.Row="1" x:Name="OrderSequenceDataGrid" 
+                                  AutoGenerateColumns="False" 
+                                  CanUserAddRows="False"
+                                  SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="順番" Width="50" Binding="{Binding Order}"/>
+                                <DataGridTextColumn Header="説明" Binding="{Binding Description}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                            <Button Content="◀ 追加" Width="80" Height="30" Margin="5" Click="AddToSequenceButton_Click"/>
+                            <Button Content="除外 ▶" Width="80" Height="30" Margin="5" Click="RemoveFromSequenceButton_Click"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="3" Margin="0,10">
+                            <TextBlock Text="キー/ボタン:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="OrderKeyTextBox" IsReadOnly="True" PreviewKeyDown="OrderKeyTextBox_PreviewKeyDown"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="4" Margin="0,10">
+                            <TextBlock Text="説明:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="OrderDescriptionTextBox" Margin="0,0,0,5"/>
+                            <Button Content="オーダー作成" Width="120" Height="30" Click="CreateOrderButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- 右側：作成済みオーダークリック -->
+                    <Grid Grid.Column="2" Margin="5,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="作成済みオーダークリック" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <DataGrid Grid.Row="1" x:Name="OrderPointsDataGrid" 
+                                  AutoGenerateColumns="False" 
+                                  CanUserAddRows="False"
+                                  SelectionMode="Single"
+                                  SelectionChanged="OrderPointsDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="説明" Binding="{Binding Description}" Width="*"/>
+                                <DataGridTextColumn Header="キー" Binding="{Binding KeyName}" Width="80"/>
+                                <DataGridTextColumn Header="順番数" Binding="{Binding ClickPointIds.Count}" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 入力エリア -->
+        <Grid Grid.Row="3" Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 入力フィールド -->
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 1行目 -->
+                <Grid Grid.Row="0" Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="X:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Grid.Column="1" x:Name="XTextBox" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="2" Text="Y:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Grid.Column="3" x:Name="YTextBox" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="4" Text="デバイス:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Grid.Column="5" x:Name="DeviceTypeComboBox" SelectedIndex="0" Margin="0,0,10,0" SelectionChanged="DeviceTypeComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Keyboard"/>
+                        <ComboBoxItem Content="Joystick"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Column="6" Text="キー/ボタン:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Grid.Column="7" x:Name="KeyTextBox" IsReadOnly="True" 
+                             PreviewKeyDown="KeyTextBox_PreviewKeyDown" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="8" Text="説明:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Grid.Column="9" x:Name="DescriptionTextBox"/>
+                </Grid>
+
+                <!-- 2行目: 連打設定と修飾キー -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="連打速度(回/秒):" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Grid.Column="1" x:Name="RapidSpeedTextBox" Text="10" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="2" Text="修飾キー:" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                    <CheckBox Grid.Column="3" x:Name="CtrlCheckBox" Content="Ctrl" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Grid.Column="4" x:Name="ShiftCheckBox" Content="Shift" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Grid.Column="5" x:Name="AltCheckBox" Content="Alt" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="6" Text="※キーを押している間連打、離すと停止（最大60回/秒）" 
+                               FontStyle="Italic" Foreground="Gray" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </Grid>
+            </Grid>
+
+            <!-- ボタン -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="定点クリック追加" Width="120" Height="30" Margin="5" Click="AddButton_Click"/>
+                <Button Content="上書き保存" Width="100" Height="30" Margin="5" Click="UpdateButton_Click" Background="LightBlue"/>
+                <Button Content="削除" Width="100" Height="30" Margin="5" Click="RemoveButton_Click"/>
+                <Button Content="マウス位置取得(Q)" Width="130" Height="30" Margin="5" Click="GetMousePositionButton_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ステータスバー -->
+        <TextBlock Grid.Row="4" x:Name="StatusTextBlock" Text="準備完了" 
+                   Background="LightGray" Padding="5"/>
+    </Grid>
+</Window>

@@ -1,0 +1,9 @@
+This is a template for generating rule tabs.
+Each tab needs 6 rules with unique names based on the tab prefix.
+
+Tab prefixes:
+- spotlight (done)
+- Odotte (—x‚Á‚Ä‚¢‚¢‚Æ‚à)
+- Legend
+- Nanasai (µÊ)
+- Utahime (‰Ì•P)

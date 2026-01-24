@@ -1,0 +1,1187 @@
+﻿<Window x:Class="audition_nagurisaki.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:audition_nagurisaki"
+        mc:Ignorable="d"
+        Title="Settings" Height="680" Width="750" 
+        Background="White">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <StackPanel>
+                <TextBlock x:Name="txtTitle" Text="Settings" Foreground="Black" FontWeight="Bold" FontSize="24" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                
+                <TabControl Height="400">
+                    <TabItem x:Name="tabSettings" Header="Settings">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <GroupBox x:Name="grpWindow1" Header="Window 1" Margin="0,0,0,15" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord1_1" Text="Coordinate 1: X=" Width="100"/>
+                            <TextBox x:Name="txtX11" Width="70" Text="100"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY11" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey1_1" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey11" Width="50" Text="1"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord1_2" Text="Coordinate 2: X=" Width="100"/>
+                            <TextBox x:Name="txtX12" Width="70" Text="200"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY12" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey1_2" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey12" Width="50" Text="Q"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
+                <GroupBox x:Name="grpWindow2" Header="Window 2" Margin="0,0,0,15" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord2_1" Text="Coordinate 1: X=" Width="100"/>
+                            <TextBox x:Name="txtX21" Width="70" Text="300"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY21" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey2_1" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey21" Width="50" Text="2"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord2_2" Text="Coordinate 2: X=" Width="100"/>
+                            <TextBox x:Name="txtX22" Width="70" Text="400"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY22" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey2_2" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey22" Width="50" Text="W"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
+                <GroupBox x:Name="grpWindow3" Header="Window 3" Margin="0,0,0,15" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord3_1" Text="Coordinate 1: X=" Width="100"/>
+                            <TextBox x:Name="txtX31" Width="70" Text="500"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY31" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey3_1" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey31" Width="50" Text="3"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblCoord3_2" Text="Coordinate 2: X=" Width="100"/>
+                            <TextBox x:Name="txtX32" Width="70" Text="600"/>
+                            <TextBlock Text=" Y=" Margin="10,0,0,0"/>
+                            <TextBox x:Name="txtY32" Width="70" Text="100"/>
+                            <TextBlock x:Name="lblRegKey3_2" Text=" Key:" Margin="10,0,5,0"/>
+                            <TextBox x:Name="txtRegKey32" Width="50" Text="E"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox x:Name="grpDisplayNames" Header="Display Names" Margin="0,0,0,15" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblVoName" Text="Vo Display:" Width="100"/>
+                            <TextBox x:Name="txtVoDisplayName" Width="150" Text="Vo"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblDaName" Text="Da Display:" Width="100"/>
+                            <TextBox x:Name="txtDaDisplayName" Width="150" Text="Da"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblViName" Text="Vi Display:" Width="100"/>
+                            <TextBox x:Name="txtViDisplayName" Width="150" Text="Vi"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <TabItem x:Name="tabInfo" Header="Info">
+                        <TabControl x:Name="tabControlAuditions" SelectionChanged="TabControlAuditions_SelectionChanged">
+                    <TabItem x:Name="tabSpotlight" Header="spotlight">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock x:Name="lblSpotlightTitle" Text="Audition Target Rules - spotlight" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                <TextBlock Text="Current Tab: spotlight" FontSize="14" Foreground="Blue" Margin="0,0,0,5"/>
+                                <TextBlock Text="This tab uses the same rule structure (Rule 1-6)." FontStyle="Italic" Foreground="Gray" Margin="0,0,0,5"/>
+                                <TextBlock Text="Rules are saved separately for each audition tab." FontStyle="Italic" Foreground="Gray" Margin="0,0,0,10"/>
+                                
+                                <GroupBox x:Name="grpSpotlightRule1" Header="VoDaVi" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule1Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule1Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule1Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule1Display2" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox x:Name="grpSpotlightRule2" Header="VoViDa" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule2Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule2Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule2Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule2Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox x:Name="grpSpotlightRule3" Header="DaVoVi" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule3Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule3Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule3Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule3Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox x:Name="grpSpotlightRule4" Header="DaViVo" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule4Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule4Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule4Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule4Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox x:Name="grpSpotlightRule5" Header="ViVoDa" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule5Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule5Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule5Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule5Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox x:Name="grpSpotlightRule6" Header="ViDaVo" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule6Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule6Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbSpotlightRule6Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbSpotlightRule6Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <TabItem x:Name="tabOdotte" Header="Odotte">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock x:Name="lblOdotteTitle" Text="オーディション殴り先ルール - 踊っていいとも" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                
+                                <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule1Coord1RGB" Width="100">
+                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule1Coord2RGB" Width="100">
+                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule1Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule1Display2" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule2Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule2Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule2Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule2Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule3Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule3Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule3Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule3Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule4Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule4Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule4Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule4Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule5Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule5Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text="が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule5Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule5Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標1:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule6Coord1RGB" Width="100">
+                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="座標2:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule6Coord2RGB" Width="100">
+                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" が最小" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule6Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbOdotteRule6Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <TabItem x:Name="tabLegend" Header="legend">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock x:Name="lblLegendTitle" Text="Audition Target Rules - legend" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                
+                                <GroupBox Header="Vo1" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule1Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule1Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule1Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule1Display2" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo2" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule2Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule2Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule2Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule2Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo3" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule3Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule3Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule3Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule3Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo4" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule4Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule4Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule4Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule4Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo5" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule5Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule5Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule5Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule5Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo6" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule6Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule6Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbLegendRule6Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbLegendRule6Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <TabItem x:Name="tabNanasai" Header="Nanasai">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock x:Name="lblNanasaiTitle" Text="Audition Target Rules - Nanasai" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                
+                                <GroupBox Header="Vo1" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule1Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule1Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule1Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule1Display2" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo2" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule2Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule2Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule2Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule2Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo3" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule3Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule3Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule3Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule3Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo4" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule4Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule4Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule4Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule4Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo5" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule5Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule5Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule5Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule5Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo6" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule6Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule6Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbNanasaiRule6Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbNanasaiRule6Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    
+                    <TabItem x:Name="tabUtahime" Header="Utahime">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock x:Name="lblUtahimeTitle" Text="Audition Target Rules - Utahime" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                
+                                <GroupBox Header="Vo1" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule1Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule1Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule1Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule1Display2" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo2" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule2Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule2Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule2Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule2Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo3" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule3Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule3Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule3Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule3Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo4" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule4Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule4Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule4Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule4Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo5" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule5Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule5Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)" IsSelected="True"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule5Display1" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule5Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                                <GroupBox Header="Vo6" Margin="0,0,0,10" Padding="10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="When Coord1" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule6Coord1RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)" IsSelected="True"/>
+                                                <ComboBoxItem Content="B (Vi)"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="And Coord2" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule6Coord2RGB" Width="100">`n                                                <ComboBoxItem Content="R (Da)"/>
+                                                <ComboBoxItem Content="G (Vo)"/>
+                                                <ComboBoxItem Content="B (Vi)" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" is lowest" Margin="5,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBlock Text="Display:" Width="80"/>
+                                            <ComboBox x:Name="cmbUtahimeRule6Display1" Width="100">`n                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="5,0"/>
+                                            <ComboBox x:Name="cmbUtahimeRule6Display2" Width="100">`n                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                        </TabControl>
+                    </TabItem>
+                </TabControl>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <TextBlock x:Name="lblMousePos" Text="Mouse Position: " Width="110"/>
+                    <TextBlock x:Name="txtMousePosition" Text="X=0, Y=0" Foreground="Blue"/>
+                </StackPanel>
+
+                <GroupBox x:Name="grpWeekInfo" Header="Week Info" Margin="0,10,0,15" Padding="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock x:Name="lblWeek" Text="Current Week:" Width="100"/>
+                            <TextBox x:Name="txtWeek" Width="70" Text="1" IsReadOnly="True"/>
+                            <TextBlock Text="/ 16" Margin="5,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="Press judge key to advance week and perform identification" FontSize="11" Foreground="Gray" Margin="0,5,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock x:Name="lblJudgeKey" Text="Judge Key:" Width="100"/>
+                            <TextBox x:Name="txtJudgeKey" Width="70" Text="Space"/>
+                            <TextBlock x:Name="lblJudgeInfo" Text="(Press to judge and advance week)" Margin="10,0,0,0" FontStyle="Italic" Foreground="Gray"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
+                <GroupBox Header="Display Settings" Margin="0,0,0,15" Padding="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Font Size:" Width="100"/>
+                        <TextBox x:Name="txtFontSize" Width="70" Text="200"/>
+                        <TextBlock Text="(Font size for display)" Margin="10,0,0,0" FontStyle="Italic" Foreground="Gray"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <StackPanel Orientation="Horizontal" Margin="0,20" HorizontalAlignment="Center">
+                    <Button x:Name="btnSaveSettings" Content="Save Settings" Width="120" Height="40" Click="BtnSaveSettings_Click" Margin="0,0,10,0" FontSize="14"/>
+                    <Button x:Name="btnLoadSettings" Content="Load Settings" Width="120" Height="40" Click="BtnLoadSettings_Click" Margin="0,0,20,0" FontSize="14"/>
+                    <Button x:Name="btnLaunch" Content="Display" Width="120" Height="40" Click="BtnLaunch_Click" Margin="0,0,20,0" FontSize="16"/>
+                    <Button x:Name="btnClose" Content="Close" Width="120" Height="40" Click="BtnClose_Click" FontSize="16"/>
+                </StackPanel>
+                
+                <TextBlock x:Name="txtStatus" Text="Waiting..." Foreground="Gray" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>
+
+

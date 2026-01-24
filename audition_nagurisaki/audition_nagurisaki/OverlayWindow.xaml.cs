@@ -8,32 +8,56 @@ namespace audition_nagurisaki
 {
     public partial class OverlayWindow : Window
     {
+        private bool isTransparentMode = true;
+
         public OverlayWindow()
         {
             InitializeComponent();
-            this.Title = "殴り先";
-            // 透過ウィンドウなので初期化は最小限
+            this.Title = "Naguri Saki";
+            SetTransparentMode(true);
         }
 
-        // 右クリックメニューの閉じるイベント
         private void ContextMenu_Close_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
+        private void ContextMenu_ToggleTransparent_Click(object sender, RoutedEventArgs e)
+        {
+            isTransparentMode = !isTransparentMode;
+            SetTransparentMode(isTransparentMode);
+        }
+
+        private void SetTransparentMode(bool transparent)
+        {
+            isTransparentMode = transparent;
+            
+            if (transparent)
+            {
+                bgPanel.Visibility = Visibility.Collapsed;
+                this.Width = 400;
+                this.Height = 300;
+            }
+            else
+            {
+                bgPanel.Visibility = Visibility.Visible;
+                this.Width = 500;
+                this.Height = 400;
+            }
+        }
+
         public void SetWeekInfo(int week)
         {
-            // 透過ウィンドウでは週情報を表示しない
+            // No display needed for now
         }
 
         public void UpdateJudgementResult(int window, int coord, string result, Color color)
         {
-            // 透過ウィンドウでは個別結果を表示しない
+            // No display needed for now
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // ウィンドウをドラッグして移動できるようにする
             if (e.ButtonState == MouseButtonState.Pressed)
             {
                 this.DragMove();
@@ -42,17 +66,38 @@ namespace audition_nagurisaki
 
         public void ShowVo(bool show)
         {
-            txtVo.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (isTransparentMode)
+            {
+                txtVo.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                txtVoWithBg.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         public void ShowDa(bool show)
         {
-            txtDa.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (isTransparentMode)
+            {
+                txtDa.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                txtDaWithBg.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         public void ShowVi(bool show)
         {
-            txtVi.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (isTransparentMode)
+            {
+                txtVi.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                txtViWithBg.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         public void HideAll()
@@ -60,38 +105,63 @@ namespace audition_nagurisaki
             txtVo.Visibility = Visibility.Collapsed;
             txtDa.Visibility = Visibility.Collapsed;
             txtVi.Visibility = Visibility.Collapsed;
+            txtVoWithBg.Visibility = Visibility.Collapsed;
+            txtDaWithBg.Visibility = Visibility.Collapsed;
+            txtViWithBg.Visibility = Visibility.Collapsed;
         }
 
-        // 矢印形式の結果を表示
         public void ShowResultText(string result)
         {
-            // 既存の表示を非表示にして、テキストを更新
             HideAll();
 
-            // 結果に応じて表示
-            if (result.Contains("Vo"))
+            if (isTransparentMode)
             {
-                txtVo.Text = result;
-                txtVo.Visibility = Visibility.Visible;
+                if (result.Contains("Vo"))
+                {
+                    txtVo.Text = result;
+                    txtVo.Visibility = Visibility.Visible;
+                }
+                else if (result.Contains("Da"))
+                {
+                    txtDa.Text = result;
+                    txtDa.Visibility = Visibility.Visible;
+                }
+                else if (result.Contains("Vi"))
+                {
+                    txtVi.Text = result;
+                    txtVi.Visibility = Visibility.Visible;
+                }
             }
-            else if (result.Contains("Da"))
+            else
             {
-                txtDa.Text = result;
-                txtDa.Visibility = Visibility.Visible;
-            }
-            else if (result.Contains("Vi"))
-            {
-                txtVi.Text = result;
-                txtVi.Visibility = Visibility.Visible;
+                if (result.Contains("Vo"))
+                {
+                    txtVoWithBg.Text = result;
+                    txtVoWithBg.Visibility = Visibility.Visible;
+                }
+                else if (result.Contains("Da"))
+                {
+                    txtDaWithBg.Text = result;
+                    txtDaWithBg.Visibility = Visibility.Visible;
+                }
+                else if (result.Contains("Vi"))
+                {
+                    txtViWithBg.Text = result;
+                    txtViWithBg.Visibility = Visibility.Visible;
+                }
             }
         }
 
-        // フォントサイズを設定
         public void SetFontSize(int fontSize)
         {
             txtVo.FontSize = fontSize;
             txtDa.FontSize = fontSize;
             txtVi.FontSize = fontSize;
+            
+            int bgFontSize = fontSize / 2;
+            txtVoWithBg.FontSize = bgFontSize;
+            txtDaWithBg.FontSize = bgFontSize;
+            txtViWithBg.FontSize = bgFontSize;
         }
     }
 }

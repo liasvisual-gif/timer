@@ -1,4 +1,4 @@
-﻿<Window x:Class="audition_nagurisaki.OverlayWindow"
+<Window x:Class="audition_nagurisaki.OverlayWindow"
 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 Title="Display" 
@@ -12,16 +12,78 @@ Height="300"
 ResizeMode="NoResize"
 MouseLeftButtonDown="Window_MouseLeftButtonDown">
     <Grid>
-        <!-- Context Menu -->
         <Grid.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="閉じる" Click="ContextMenu_Close_Click"/>
+                <MenuItem Header="Toggle Transparent" Click="ContextMenu_ToggleTransparent_Click"/>
+                <Separator/>
+                <MenuItem Header="Close" Click="ContextMenu_Close_Click"/>
             </ContextMenu>
         </Grid.ContextMenu>
         
-        <!-- Result Text Display Only -->
+        <Border x:Name="bgPanel" 
+                Background="#F0F0F0" 
+                BorderBrush="#333" 
+                BorderThickness="2" 
+                CornerRadius="10"
+                Visibility="Collapsed">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" 
+                           x:Name="txtTitle"
+                           Text="Audition Result" 
+                           FontSize="18" 
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Margin="0,5,0,10"/>
+                
+                <Viewbox Grid.Row="1" Stretch="Uniform">
+                    <Grid>
+                        <TextBlock x:Name="txtVoWithBg" 
+                                   Text="Vo" 
+                                   FontSize="100" 
+                                   FontWeight="Bold"
+                                   Foreground="Red"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed"/>
+                        
+                        <TextBlock x:Name="txtDaWithBg" 
+                                   Text="Da" 
+                                   FontSize="100" 
+                                   FontWeight="Bold"
+                                   Foreground="Blue"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed"/>
+                        
+                        <TextBlock x:Name="txtViWithBg" 
+                                   Text="Vi" 
+                                   FontSize="100" 
+                                   FontWeight="Bold"
+                                   Foreground="Yellow"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed"/>
+                    </Grid>
+                </Viewbox>
+                
+                <TextBlock Grid.Row="2" 
+                           x:Name="txtStatusInfo"
+                           Text="Right-click to toggle transparent mode" 
+                           FontSize="10" 
+                           HorizontalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="0,10,0,5"/>
+            </Grid>
+        </Border>
+        
         <TextBlock x:Name="txtVo" 
-                   Text="Vo��Vo" 
+                   Text="Vo" 
                    FontSize="200" 
                    FontWeight="Bold"
                    Foreground="Red"
@@ -30,7 +92,7 @@ MouseLeftButtonDown="Window_MouseLeftButtonDown">
                    Visibility="Collapsed"/>
         
         <TextBlock x:Name="txtDa" 
-                   Text="Da��Da" 
+                   Text="Da" 
                    FontSize="200" 
                    FontWeight="Bold"
                    Foreground="Blue"
@@ -39,7 +101,7 @@ MouseLeftButtonDown="Window_MouseLeftButtonDown">
                    Visibility="Collapsed"/>
         
         <TextBlock x:Name="txtVi" 
-                   Text="Vi��Vi" 
+                   Text="Vi" 
                    FontSize="200" 
                    FontWeight="Bold"
                    Foreground="Yellow"
@@ -48,4 +110,3 @@ MouseLeftButtonDown="Window_MouseLeftButtonDown">
                    Visibility="Collapsed"/>
     </Grid>
 </Window>
-

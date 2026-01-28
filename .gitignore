@@ -101,3 +101,8 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
+
+# Build output
+publish/
+bin/
+obj/

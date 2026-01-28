@@ -60,9 +60,14 @@ namespace audition_nagurisaki
         public string Window3_Key1 { get; set; } = "3";
         public string Window3_Key2 { get; set; } = "E";
 
-        public string JudgeKey { get; set; } = "Space";
         public int CurrentWeek { get; set; } = 1;
         public int FontSize { get; set; } = 200;
+        
+        // 判別キーと窓移動キー
+        public string JudgeKey { get; set; } = "Space";
+        public string MoveToWindow1Key { get; set; } = "Z";
+        public string MoveToWindow2Key { get; set; } = "X";
+        public string MoveToWindow3Key { get; set; } = "C";
 
 
         // ルール設定
@@ -95,11 +100,6 @@ namespace audition_nagurisaki
         public string Rule6_Coord2RGB { get; set; } = "B";
         public string Rule6_Display1 { get; set; } = "Vo";
         public string Rule6_Display2 { get; set; } = "Vi";
-
-        // カスタム表示名
-        public string VoDisplayName { get; set; } = "Vo";
-        public string DaDisplayName { get; set; } = "Da";
-        public string ViDisplayName { get; set; } = "Vi";
 
         // 各タブのルール設定を保存するクラス
         public RuleSet DefaultRules { get; set; } = new RuleSet();

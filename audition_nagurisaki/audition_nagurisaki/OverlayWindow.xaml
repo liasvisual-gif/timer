@@ -82,31 +82,57 @@ MouseLeftButtonDown="Window_MouseLeftButtonDown">
             </Grid>
         </Border>
         
-        <TextBlock x:Name="txtVo" 
-                   Text="Vo" 
-                   FontSize="200" 
-                   FontWeight="Bold"
-                   Foreground="Red"
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Visibility="Collapsed"/>
-        
-        <TextBlock x:Name="txtDa" 
-                   Text="Da" 
-                   FontSize="200" 
-                   FontWeight="Bold"
-                   Foreground="Blue"
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Visibility="Collapsed"/>
-        
-        <TextBlock x:Name="txtVi" 
-                   Text="Vi" 
-                   FontSize="200" 
-                   FontWeight="Bold"
-                   Foreground="Yellow"
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Visibility="Collapsed"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock x:Name="txtWeekInfo"
+            Text="3-8"
+            FontSize="60"
+            FontWeight="Bold"
+            Foreground="White"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,5">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="0" Opacity="1"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock x:Name="txtVo" 
+                       Text="Vo" 
+                       FontSize="200" 
+                       FontWeight="Bold"
+                       Foreground="Red"
+                       HorizontalAlignment="Center"
+                       Margin="0"
+                       Visibility="Collapsed">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="0" Opacity="1"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock x:Name="txtDa" 
+                       Text="Da" 
+                       FontSize="200" 
+                       FontWeight="Bold"
+                       Foreground="Blue"
+                       HorizontalAlignment="Center"
+                       Margin="0"
+                       Visibility="Collapsed">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="0" Opacity="1"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock x:Name="txtVi" 
+                       Text="Vi" 
+                       FontSize="200" 
+                       FontWeight="Bold"
+                       Foreground="Yellow"
+                       HorizontalAlignment="Center"
+                       Margin="0"
+                       Visibility="Collapsed">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="0" Opacity="1"/>
+                </TextBlock.Effect>
+            </TextBlock>
+        </StackPanel>
     </Grid>
 </Window>

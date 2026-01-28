@@ -21,13 +21,22 @@ namespace audition_nagurisaki
     {
         private DispatcherTimer detectionTimer;
         private DispatcherTimer mouseTrackingTimer;
-        private OverlayWindow? overlayWindow;
+        private List<OverlayWindow> overlayWindows = new List<OverlayWindow>();
         private KeyboardHook? keyboardHook;
         
         private const string SettingsFilePath = "coordinates_settings.json";
         
         private string currentAuditionTab = "Default"; // 現在選択されている情報タブ
         private int currentWeek = 1; // 現在の週（1-16）
+        
+        // 現在アクティブな窓（1-3）
+        private int activeWindow = 1;
+        
+        // アクティブな座標登録対象（設定タブ用）
+        private string? activeCoordTarget = null; // "11", "12", "21", "22", "31", "32"
+        
+        // アクティブな定点クリック座標登録対象
+        private (int window, int index)? activeFixedClickTarget = null;
         
         
         // 各窓の登録色（2座標から取得）
@@ -44,6 +53,15 @@ namespace audition_nagurisaki
 
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
+
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        private const uint MOUSEEVENTF_LEFTUP = 0x0004;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
@@ -88,25 +106,10 @@ namespace audition_nagurisaki
             txtTitle.Text = "審査員殴り";
             tabSettings.Header = "設定";
             tabInfo.Header = "情報";
-            grpWindow1.Header = "窓1";
-            grpWindow2.Header = "窓2";
-            grpWindow3.Header = "窓3";
+            grpWindow1.Header = "窓1 識別座標";
+            grpWindow2.Header = "窓2 識別座標";
+            grpWindow3.Header = "窓3 識別座標";
             
-            // 座標ラベル
-            lblCoord1_1.Text = "座標1: X=";
-            lblCoord1_2.Text = "座標2: X=";
-            lblCoord2_1.Text = "座標1: X=";
-            lblCoord2_2.Text = "座標2: X=";
-            lblCoord3_1.Text = "座標1: X=";
-            lblCoord3_2.Text = "座標2: X=";
-            
-            // 登録キーラベル
-            lblRegKey1_1.Text = " キー:";
-            lblRegKey1_2.Text = " キー:";
-            lblRegKey2_1.Text = " キー:";
-            lblRegKey2_2.Text = " キー:";
-            lblRegKey3_1.Text = " キー:";
-            lblRegKey3_2.Text = " キー:";
             
             // マウス座標
             lblMousePos.Text = "マウス座標: ";
@@ -114,8 +117,7 @@ namespace audition_nagurisaki
             // 週情報
             grpWeekInfo.Header = "週情報";
             lblWeek.Text = "現在の週:";
-            lblJudgeKey.Text = "判別キー:";
-            lblJudgeInfo.Text = "(押すと識別と週更新)";
+            txtWeek.Text = ConvertWeekToText(currentWeek);
             
             
             // 情報タブ
@@ -132,11 +134,6 @@ namespace audition_nagurisaki
             lblNanasaiTitle.Text = "オーディション殴り先ルール - 七彩";
             lblUtahimeTitle.Text = "オーディション殴り先ルール - 歌姫";
             
-            // 表示名カスタマイズ
-            grpDisplayNames.Header = "表示名設定";
-            lblVoName.Text = "Vo表示名:";
-            lblDaName.Text = "Da表示名:";
-            lblViName.Text = "Vi表示名:";
             
             // ボタン
             btnSaveSettings.Content = "設定保存";
@@ -175,66 +172,200 @@ namespace audition_nagurisaki
             {
                 string keyString = e.ToString().ToUpper();
                 
-                // 判別開始キーチェック
-                if (keyString == txtJudgeKey.Text.ToUpper())
+                // デバッグ用ログ
+                txtStatus.Text = $"キー検出: {keyString}";
+                
+                // 窓移動キーチェック
+                if (KeyMatches(keyString, e, txtMoveToWindow1Key.Text))
                 {
-                    PerformJudgement();
+                    SetActiveWindow(1);
+                    return;
+                }
+                if (KeyMatches(keyString, e, txtMoveToWindow2Key.Text))
+                {
+                    SetActiveWindow(2);
+                    return;
+                }
+                if (KeyMatches(keyString, e, txtMoveToWindow3Key.Text))
+                {
+                    SetActiveWindow(3);
                     return;
                 }
                 
-                // 座標自動入力キー（現在のマウス座標を取得）
-                if (GetCursorPos(out POINT point))
+                // 判別キーチェック（アクティブ窓のみ）
+                if (KeyMatches(keyString, e, txtJudgeKey.Text))
                 {
-                    // 窓1-座標1の登録キー
-                    if (KeyMatches(keyString, e, txtRegKey11.Text))
-                    {
-                        txtX11.Text = point.X.ToString();
-                        txtY11.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓1-座標1を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
-                    // 窓1-座標2の登録キー
-                    else if (KeyMatches(keyString, e, txtRegKey12.Text))
-                    {
-                        txtX12.Text = point.X.ToString();
-                        txtY12.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓1-座標2を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
-                    // 窓2-座標1の登録キー
-                    else if (KeyMatches(keyString, e, txtRegKey21.Text))
-                    {
-                        txtX21.Text = point.X.ToString();
-                        txtY21.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓2-座標1を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
-                    // 窓2-座標2の登録キー
-                    else if (KeyMatches(keyString, e, txtRegKey22.Text))
-                    {
-                        txtX22.Text = point.X.ToString();
-                        txtY22.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓2-座標2を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
-                    // 窓3-座標1の登録キー
-                    else if (KeyMatches(keyString, e, txtRegKey31.Text))
-                    {
-                        txtX31.Text = point.X.ToString();
-                        txtY31.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓3-座標1を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
-                    // 窓3-座標2の登録キー
-                    else if (KeyMatches(keyString, e, txtRegKey32.Text))
-                    {
-                        txtX32.Text = point.X.ToString();
-                        txtY32.Text = point.Y.ToString();
-                        txtStatus.Text = $"窓3-座標2を設定: X={point.X}, Y={point.Y}";
-                        return;
-                    }
+                    PerformWindowJudgement(activeWindow);
+                    return;
+                }
+                
+                // 週の進む/戻るホットキー
+                if (e == Key.Left)
+                {
+                    BtnWeekBack_Click(null, null);
+                    return;
+                }
+                if (e == Key.Right)
+                {
+                    BtnWeekForward_Click(null, null);
+                    return;
+                }
+                
+                // 座標登録キー（設定タブ用）
+                if (KeyMatches(keyString, e, txtCoordRegKey.Text))
+                {
+                    RegisterCoordinate();
+                    return;
+                }
+                
+                // 定点クリック座標登録キー
+                if (KeyMatches(keyString, e, txtFixedClickRegKey.Text))
+                {
+                    RegisterFixedClickCoordinate();
+                    return;
                 }
             });
+        }
+        
+        private void SetActiveWindow(int windowNumber)
+        {
+            activeWindow = windowNumber;
+            txtCurrentWindow.Text = $"窓{windowNumber}";
+            txtStatus.Text = $"窓{windowNumber}に移動しました";
+        }
+        
+        private void RegisterCoordinate()
+        {
+            if (activeCoordTarget == null)
+            {
+                txtStatus.Text = "座標登録: アクティブな項目がありません";
+                return;
+            }
+            
+            if (!GetCursorPos(out POINT point))
+                return;
+            
+            switch (activeCoordTarget)
+            {
+                case "11":
+                    txtX11.Text = point.X.ToString();
+                    txtY11.Text = point.Y.ToString();
+                    break;
+                case "12":
+                    txtX12.Text = point.X.ToString();
+                    txtY12.Text = point.Y.ToString();
+                    break;
+                case "21":
+                    txtX21.Text = point.X.ToString();
+                    txtY21.Text = point.Y.ToString();
+                    break;
+                case "22":
+                    txtX22.Text = point.X.ToString();
+                    txtY22.Text = point.Y.ToString();
+                    break;
+                case "31":
+                    txtX31.Text = point.X.ToString();
+                    txtY31.Text = point.Y.ToString();
+                    break;
+                case "32":
+                    txtX32.Text = point.X.ToString();
+                    txtY32.Text = point.Y.ToString();
+                    break;
+            }
+            
+            txtStatus.Text = $"座標登録: {activeCoordTarget} X={point.X}, Y={point.Y}";
+        }
+        
+        private void CoordRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton rb)
+            {
+                activeCoordTarget = rb.Name switch
+                {
+                    "rbCoord11" => "11",
+                    "rbCoord12" => "12",
+                    "rbCoord21" => "21",
+                    "rbCoord22" => "22",
+                    "rbCoord31" => "31",
+                    "rbCoord32" => "32",
+                    _ => null
+                };
+                
+                if (txtCoordRegStatus != null && activeCoordTarget != null)
+                {
+                    int w = int.Parse(activeCoordTarget[0].ToString());
+                    int c = int.Parse(activeCoordTarget[1].ToString());
+                    txtCoordRegStatus.Text = $"(アクティブ: 窓{w}-座標{c})";
+                }
+            }
+        }
+        
+        private void FixedClickRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton rb)
+            {
+                activeFixedClickTarget = rb.Name switch
+                {
+                    "rbW1C1" => (1, 1), "rbW1C2" => (1, 2), "rbW1C3" => (1, 3),
+                    "rbW1C4" => (1, 4), "rbW1C5" => (1, 5), "rbW1C6" => (1, 6),
+                    "rbW1C7" => (1, 7), "rbW1C8" => (1, 8), "rbW1C9" => (1, 9),
+                    "rbW2C1" => (2, 1), "rbW2C2" => (2, 2), "rbW2C3" => (2, 3),
+                    "rbW2C4" => (2, 4), "rbW2C5" => (2, 5), "rbW2C6" => (2, 6),
+                    "rbW2C7" => (2, 7), "rbW2C8" => (2, 8), "rbW2C9" => (2, 9),
+                    "rbW3C1" => (3, 1), "rbW3C2" => (3, 2), "rbW3C3" => (3, 3),
+                    "rbW3C4" => (3, 4), "rbW3C5" => (3, 5), "rbW3C6" => (3, 6),
+                    "rbW3C7" => (3, 7), "rbW3C8" => (3, 8), "rbW3C9" => (3, 9),
+                    _ => null
+                };
+                
+                if (txtFixedClickRegStatus != null && activeFixedClickTarget.HasValue)
+                {
+                    var (w, i) = activeFixedClickTarget.Value;
+                    txtFixedClickRegStatus.Text = $"(アクティブ: 窓{w}-{i})";
+                }
+            }
+        }
+        
+        private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // クリックされた要素がRadioButtonでない場合、アクティブ状態を解除
+            if (e.OriginalSource is not RadioButton)
+            {
+                // 設定タブの座標登録アクティブを解除
+                if (activeCoordTarget != null)
+                {
+                    activeCoordTarget = null;
+                    rbCoord11.IsChecked = false;
+                    rbCoord12.IsChecked = false;
+                    rbCoord21.IsChecked = false;
+                    rbCoord22.IsChecked = false;
+                    rbCoord31.IsChecked = false;
+                    rbCoord32.IsChecked = false;
+                    txtCoordRegStatus.Text = "(アクティブ: なし)";
+                }
+                
+                // 定点クリック座標登録アクティブを解除
+                if (activeFixedClickTarget.HasValue)
+                {
+                    activeFixedClickTarget = null;
+                    // すべてのRadioButtonのチェックを解除
+                    ClearAllFixedClickRadioButtons();
+                    txtFixedClickRegStatus.Text = "(アクティブ: なし)";
+                }
+            }
+        }
+        
+        private void ClearAllFixedClickRadioButtons()
+        {
+            rbW1C1.IsChecked = false; rbW1C2.IsChecked = false; rbW1C3.IsChecked = false;
+            rbW1C4.IsChecked = false; rbW1C5.IsChecked = false; rbW1C6.IsChecked = false;
+            rbW1C7.IsChecked = false; rbW1C8.IsChecked = false; rbW1C9.IsChecked = false;
+            rbW2C1.IsChecked = false; rbW2C2.IsChecked = false; rbW2C3.IsChecked = false;
+            rbW2C4.IsChecked = false; rbW2C5.IsChecked = false; rbW2C6.IsChecked = false;
+            rbW2C7.IsChecked = false; rbW2C8.IsChecked = false; rbW2C9.IsChecked = false;
+            rbW3C1.IsChecked = false; rbW3C2.IsChecked = false; rbW3C3.IsChecked = false;
+            rbW3C4.IsChecked = false; rbW3C5.IsChecked = false; rbW3C6.IsChecked = false;
+            rbW3C7.IsChecked = false; rbW3C8.IsChecked = false; rbW3C9.IsChecked = false;
         }
 
         private bool KeyMatches(string keyString, Key e, string targetKey)
@@ -244,12 +375,15 @@ namespace audition_nagurisaki
                 return true;
             if (e >= Key.D1 && e <= Key.D9 && keyString == "D" + target)
                 return true;
+            // スペースキー対応
+            if (target == "SPACE" && e == Key.Space)
+                return true;
             return false;
         }
 
         private void PerformJudgement()
         {
-            if (overlayWindow == null || !overlayWindow.IsVisible)
+            if (overlayWindows.Count == 0)
             {
                 txtStatus.Text = "エラー: 表示ウィンドウが起動していません";
                 return;
@@ -260,7 +394,10 @@ namespace audition_nagurisaki
                 // フォントサイズを適用
                 if (int.TryParse(txtFontSize.Text, out int fontSize) && fontSize > 0)
                 {
-                    overlayWindow.SetFontSize(fontSize);
+                    foreach (var overlayWindow in overlayWindows)
+                    {
+                        overlayWindow.SetFontSize(fontSize);
+                    }
                 }
 
                 // 各窓の2座標を取得
@@ -297,25 +434,27 @@ namespace audition_nagurisaki
                 string result3 = CheckRules(lowest31, lowest32, color31, color32, 3);
 
                 // 結果を表示ウィンドウに更新
-                overlayWindow.UpdateJudgementResult(1, 1, $"{lowest11} ({result1})", color11);
-                overlayWindow.UpdateJudgementResult(1, 2, $"{lowest12} ({result1})", color12);
-                overlayWindow.UpdateJudgementResult(2, 1, $"{lowest21} ({result2})", color21);
-                overlayWindow.UpdateJudgementResult(2, 2, $"{lowest22} ({result2})", color22);
-                overlayWindow.UpdateJudgementResult(3, 1, $"{lowest31} ({result3})", color31);
-                overlayWindow.UpdateJudgementResult(3, 2, $"{lowest32} ({result3})", color32);
+                foreach (var overlayWindow in overlayWindows)
+                {
+                    overlayWindow.UpdateJudgementResult(1, 1, $"{lowest11} ({result1})", color11);
+                    overlayWindow.UpdateJudgementResult(1, 2, $"{lowest12} ({result1})", color12);
+                    overlayWindow.UpdateJudgementResult(2, 1, $"{lowest21} ({result2})", color21);
+                    overlayWindow.UpdateJudgementResult(2, 2, $"{lowest22} ({result2})", color22);
+                    overlayWindow.UpdateJudgementResult(3, 1, $"{lowest31} ({result3})", color31);
+                    overlayWindow.UpdateJudgementResult(3, 2, $"{lowest32} ({result3})", color32);
+                }
 
                 // メイン表示を更新（最初にマッチしたルールを表示）
-                if (!string.IsNullOrEmpty(result1))
+                string resultToShow = !string.IsNullOrEmpty(result1) ? result1 :
+                                      !string.IsNullOrEmpty(result2) ? result2 :
+                                      !string.IsNullOrEmpty(result3) ? result3 : "";
+                
+                if (!string.IsNullOrEmpty(resultToShow))
                 {
-                    overlayWindow.ShowResultText(result1);
-                }
-                else if (!string.IsNullOrEmpty(result2))
-                {
-                    overlayWindow.ShowResultText(result2);
-                }
-                else if (!string.IsNullOrEmpty(result3))
-                {
-                    overlayWindow.ShowResultText(result3);
+                    foreach (var overlayWindow in overlayWindows)
+                    {
+                        overlayWindow.ShowResultText(resultToShow);
+                    }
                 }
 
                 // 週を自動的に更新（1-16でループ）
@@ -324,10 +463,104 @@ namespace audition_nagurisaki
                 {
                     currentWeek = 1;
                 }
-                txtWeek.Text = currentWeek.ToString();
-                overlayWindow.SetWeekInfo(currentWeek);
+                txtWeek.Text = ConvertWeekToText(currentWeek);
+                foreach (var overlayWindow in overlayWindows)
+                {
+                    overlayWindow.SetWeekInfo(currentWeek);
+                }
 
-                txtStatus.Text = $"判別完了 - {currentWeek}週目";
+                txtStatus.Text = $"判別完了 - {ConvertWeekToText(currentWeek)}";
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text = $"エラー: {ex.Message}";
+            }
+        }
+
+        private void PerformWindowJudgement(int windowNumber)
+        {
+            txtStatus.Text = $"PerformWindowJudgement({windowNumber})呼び出し";
+            
+            if (overlayWindows.Count == 0)
+            {
+                txtStatus.Text = "表示ウィンドウが開いていません";
+                return;
+            }
+
+            try
+            {
+                int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+
+                switch (windowNumber)
+                {
+                    case 1:
+                        if (!int.TryParse(txtX11.Text, out x1) || !int.TryParse(txtY11.Text, out y1) ||
+                            !int.TryParse(txtX12.Text, out x2) || !int.TryParse(txtY12.Text, out y2))
+                        {
+                            txtStatus.Text = "窓1の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 2:
+                        if (!int.TryParse(txtX21.Text, out x1) || !int.TryParse(txtY21.Text, out y1) ||
+                            !int.TryParse(txtX22.Text, out x2) || !int.TryParse(txtY22.Text, out y2))
+                        {
+                            txtStatus.Text = "窓2の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 3:
+                        if (!int.TryParse(txtX31.Text, out x1) || !int.TryParse(txtY31.Text, out y1) ||
+                            !int.TryParse(txtX32.Text, out x2) || !int.TryParse(txtY32.Text, out y2))
+                        {
+                            txtStatus.Text = "窓3の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                }
+
+                // 指定された窓の色を取得
+                Color color1 = ColorDetector.GetColorAt(x1, y1);
+                Color color2 = ColorDetector.GetColorAt(x2, y2);
+
+                // RGB最小値を判定
+                string lowest1 = GetLowestRGB(color1);
+                string lowest2 = GetLowestRGB(color2);
+
+                // ルールと照合
+                string result = CheckRules(lowest1, lowest2, color1, color2, windowNumber);
+
+                txtStatus.Text = $"判別結果: {result} (色1:{lowest1}, 色2:{lowest2})";
+
+                // 結果を表示（すべてのウィンドウに）
+                if (!string.IsNullOrEmpty(result))
+                {
+                    foreach (var overlayWindow in overlayWindows)
+                    {
+                        overlayWindow.ShowResultText(result);
+                    }
+                    
+                    // 定点クリックを実行（窓番号に対応したクリック座標を使用）
+                    _ = ExecuteFixedClicks(windowNumber);
+                    
+                    // 週を自動的に更新（1-16でループ）
+                    currentWeek++;
+                    if (currentWeek > 16)
+                    {
+                        currentWeek = 1;
+                    }
+                    txtWeek.Text = ConvertWeekToText(currentWeek);
+                    foreach (var overlayWindow in overlayWindows)
+                    {
+                        overlayWindow.SetWeekInfo(currentWeek);
+                    }
+                    
+                    txtStatus.Text = $"窓{windowNumber}判別完了: {result} - {ConvertWeekToText(currentWeek)}";
+                }
+                else
+                {
+                    txtStatus.Text = $"窓{windowNumber}: ルール不一致";
+                }
             }
             catch (Exception ex)
             {
@@ -338,11 +571,11 @@ namespace audition_nagurisaki
         private string GetLowestRGB(Color color)
         {
             if (color.R < color.G && color.R < color.B)
-                return "R";
+                return "Da";  // R (Da)
             else if (color.G < color.R && color.G < color.B)
-                return "G";
+                return "Vo";  // G (Vo)
             else if (color.B < color.R && color.B < color.G)
-                return "B";
+                return "Vi";  // B (Vi)
             else
                 return "不明";
         }
@@ -401,33 +634,33 @@ namespace audition_nagurisaki
             
             try
             {
-                ruleSet.Rule1_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord1RGB", "R");
-                ruleSet.Rule1_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord2RGB", "G");
+                ruleSet.Rule1_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord1RGB", "Da");
+                ruleSet.Rule1_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord2RGB", "Vo");
                 ruleSet.Rule1_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule1Display1", "Vo");
                 ruleSet.Rule1_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule1Display2", "Vo");
 
-                ruleSet.Rule2_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord1RGB", "G");
-                ruleSet.Rule2_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord2RGB", "R");
+                ruleSet.Rule2_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord1RGB", "Vo");
+                ruleSet.Rule2_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord2RGB", "Da");
                 ruleSet.Rule2_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule2Display1", "Da");
                 ruleSet.Rule2_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule2Display2", "Da");
 
-                ruleSet.Rule3_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord1RGB", "B");
-                ruleSet.Rule3_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord2RGB", "B");
+                ruleSet.Rule3_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord1RGB", "Vi");
+                ruleSet.Rule3_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord2RGB", "Vi");
                 ruleSet.Rule3_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule3Display1", "Vi");
                 ruleSet.Rule3_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule3Display2", "Vi");
 
-                ruleSet.Rule4_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord1RGB", "R");
-                ruleSet.Rule4_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord2RGB", "B");
+                ruleSet.Rule4_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord1RGB", "Da");
+                ruleSet.Rule4_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord2RGB", "Vi");
                 ruleSet.Rule4_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule4Display1", "Vi");
                 ruleSet.Rule4_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule4Display2", "Da");
 
-                ruleSet.Rule5_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord1RGB", "B");
-                ruleSet.Rule5_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord2RGB", "R");
+                ruleSet.Rule5_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord1RGB", "Vi");
+                ruleSet.Rule5_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord2RGB", "Da");
                 ruleSet.Rule5_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule5Display1", "Da");
                 ruleSet.Rule5_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule5Display2", "Vi");
 
-                ruleSet.Rule6_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord1RGB", "G");
-                ruleSet.Rule6_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord2RGB", "B");
+                ruleSet.Rule6_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord1RGB", "Vo");
+                ruleSet.Rule6_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord2RGB", "Vi");
                 ruleSet.Rule6_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule6Display1", "Vo");
                 ruleSet.Rule6_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule6Display2", "Vi");
             }
@@ -485,9 +718,9 @@ namespace audition_nagurisaki
         {
             return type switch
             {
-                "Vo" => txtVoDisplayName.Text,
-                "Da" => txtDaDisplayName.Text,
-                "Vi" => txtViDisplayName.Text,
+                "Vo" => "Vo",
+                "Da" => "Da",
+                "Vi" => "Vi",
                 _ => type
             };
         }
@@ -550,7 +783,7 @@ namespace audition_nagurisaki
 
         private void DetectionTimer_Tick(object? sender, EventArgs e)
         {
-            if (overlayWindow == null || !overlayWindow.IsVisible)
+            if (overlayWindows.Count == 0)
                 return;
 
             try
@@ -606,7 +839,10 @@ namespace audition_nagurisaki
                 }
 
                 // すべて非表示にする
-                overlayWindow.HideAll();
+                foreach (var overlayWindow in overlayWindows)
+                {
+                    overlayWindow.HideAll();
+                }
 
 
                 if (matchedColors.Count > 0)
@@ -623,11 +859,26 @@ namespace audition_nagurisaki
 
         private void BtnLaunch_Click(object sender, RoutedEventArgs e)
         {
-            // 表示ウィンドウを起動時に表示
-            if (overlayWindow == null || !overlayWindow.IsVisible)
+            // 既存のウィンドウをすべて閉じる
+            foreach (var window in overlayWindows.ToList())
             {
-                overlayWindow = new OverlayWindow();
+                window.Close();
+            }
+            overlayWindows.Clear();
+            
+            // 選択された枚数のウィンドウを作成
+            int windowCount = cmbWindowCount.SelectedIndex + 1;
+            
+            for (int i = 0; i < windowCount; i++)
+            {
+                var overlayWindow = new OverlayWindow();
+                overlayWindow.Title = $"表示ウィンドウ {i + 1}";
                 overlayWindow.Closed += OverlayWindow_Closed;
+                
+                // ウィンドウの位置をずらす
+                overlayWindow.Left = 100 + (i * 50);
+                overlayWindow.Top = 100 + (i * 50);
+                
                 overlayWindow.Show();
                 
                 // 現在の週情報とフォントサイズを設定
@@ -636,26 +887,28 @@ namespace audition_nagurisaki
                 {
                     overlayWindow.SetFontSize(fontSize);
                 }
+                
+                overlayWindows.Add(overlayWindow);
             }
             
-            // 常時監視タイマーは起動しない（判別キーを押したときのみ識別）
-            // detectionTimer.Start();
-            
             btnLaunch.IsEnabled = false;
-            txtStatus.Text = "表示ウィンドウを起動しました（判別キーで識別実行）";
+            txtStatus.Text = $"表示ウィンドウを{windowCount}枚起動しました";
         }
 
         private void OverlayWindow_Closed(object? sender, EventArgs e)
         {
             // ウィンドウが閉じられたときの処理
-            if (overlayWindow != null)
+            if (sender is OverlayWindow closedWindow)
             {
-                overlayWindow.Closed -= OverlayWindow_Closed;
-                overlayWindow = null;
+                closedWindow.Closed -= OverlayWindow_Closed;
+                overlayWindows.Remove(closedWindow);
             }
             
-            btnLaunch.IsEnabled = true;
-            txtStatus.Text = "表示ウィンドウが閉じられました（再度開く場合は表示ボタンをクリック）";
+            if (overlayWindows.Count == 0)
+            {
+                btnLaunch.IsEnabled = true;
+                txtStatus.Text = "すべての表示ウィンドウが閉じられました";
+            }
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
@@ -665,13 +918,48 @@ namespace audition_nagurisaki
             keyboardHook?.Stop();
             keyboardHook?.Dispose();
             
-            // オーバーレイウィンドウを閉じる
-            if (overlayWindow != null)
+            // オーバーレイウィンドウをすべて閉じる
+            foreach (var window in overlayWindows.ToList())
             {
-                overlayWindow.Close();
+                window.Close();
             }
+            overlayWindows.Clear();
             
             this.Close();
+        }
+
+        private void BtnWeekBack_Click(object sender, RoutedEventArgs e)
+        {
+            currentWeek--;
+            if (currentWeek < 1)
+            {
+                currentWeek = 16;
+            }
+            txtWeek.Text = ConvertWeekToText(currentWeek);
+            
+            foreach (var overlayWindow in overlayWindows)
+            {
+                overlayWindow.SetWeekInfo(currentWeek);
+            }
+            
+            txtStatus.Text = $"{ConvertWeekToText(currentWeek)}に戻しました";
+        }
+
+        private void BtnWeekForward_Click(object sender, RoutedEventArgs e)
+        {
+            currentWeek++;
+            if (currentWeek > 16)
+            {
+                currentWeek = 1;
+            }
+            txtWeek.Text = ConvertWeekToText(currentWeek);
+            
+            foreach (var overlayWindow in overlayWindows)
+            {
+                overlayWindow.SetWeekInfo(currentWeek);
+            }
+            
+            txtStatus.Text = $"{ConvertWeekToText(currentWeek)}に進めました";
         }
 
         private void BtnSaveSettings_Click(object sender, RoutedEventArgs e)
@@ -684,30 +972,24 @@ namespace audition_nagurisaki
                     Window1_Y1 = int.Parse(txtY11.Text),
                     Window1_X2 = int.Parse(txtX12.Text),
                     Window1_Y2 = int.Parse(txtY12.Text),
-                    Window1_Key1 = txtRegKey11.Text,
-                    Window1_Key2 = txtRegKey12.Text,
 
                     Window2_X1 = int.Parse(txtX21.Text),
                     Window2_Y1 = int.Parse(txtY21.Text),
                     Window2_X2 = int.Parse(txtX22.Text),
                     Window2_Y2 = int.Parse(txtY22.Text),
-                    Window2_Key1 = txtRegKey21.Text,
-                    Window2_Key2 = txtRegKey22.Text,
 
                     Window3_X1 = int.Parse(txtX31.Text),
                     Window3_Y1 = int.Parse(txtY31.Text),
                     Window3_X2 = int.Parse(txtX32.Text),
                     Window3_Y2 = int.Parse(txtY32.Text),
-                    Window3_Key1 = txtRegKey31.Text,
-                    Window3_Key2 = txtRegKey32.Text,
 
-                    JudgeKey = txtJudgeKey.Text,
                     CurrentWeek = currentWeek,
                     FontSize = int.TryParse(txtFontSize.Text, out int fontSize) ? fontSize : 200,
-
-                    VoDisplayName = txtVoDisplayName.Text,
-                    DaDisplayName = txtDaDisplayName.Text,
-                    ViDisplayName = txtViDisplayName.Text
+                    
+                    JudgeKey = txtJudgeKey.Text,
+                    MoveToWindow1Key = txtMoveToWindow1Key.Text,
+                    MoveToWindow2Key = txtMoveToWindow2Key.Text,
+                    MoveToWindow3Key = txtMoveToWindow3Key.Text
                 };
 
                 settings.SaveToFile(SettingsFilePath);
@@ -737,33 +1019,25 @@ namespace audition_nagurisaki
                 txtY11.Text = settings.Window1_Y1.ToString();
                 txtX12.Text = settings.Window1_X2.ToString();
                 txtY12.Text = settings.Window1_Y2.ToString();
-                txtRegKey11.Text = settings.Window1_Key1;
-                txtRegKey12.Text = settings.Window1_Key2;
 
                 txtX21.Text = settings.Window2_X1.ToString();
                 txtY21.Text = settings.Window2_Y1.ToString();
                 txtX22.Text = settings.Window2_X2.ToString();
                 txtY22.Text = settings.Window2_Y2.ToString();
-                txtRegKey21.Text = settings.Window2_Key1;
-                txtRegKey22.Text = settings.Window2_Key2;
 
                 txtX31.Text = settings.Window3_X1.ToString();
                 txtY31.Text = settings.Window3_Y1.ToString();
                 txtX32.Text = settings.Window3_X2.ToString();
                 txtY32.Text = settings.Window3_Y2.ToString();
-                txtRegKey31.Text = settings.Window3_Key1;
-                txtRegKey32.Text = settings.Window3_Key2;
 
-                txtJudgeKey.Text = settings.JudgeKey;
                 currentWeek = settings.CurrentWeek;
-                txtWeek.Text = currentWeek.ToString();
+                txtWeek.Text = ConvertWeekToText(currentWeek);
                 txtFontSize.Text = settings.FontSize.ToString();
-
-
-                // 表示名を復元
-                txtVoDisplayName.Text = settings.VoDisplayName;
-                txtDaDisplayName.Text = settings.DaDisplayName;
-                txtViDisplayName.Text = settings.ViDisplayName;
+                
+                txtJudgeKey.Text = settings.JudgeKey ?? "Space";
+                txtMoveToWindow1Key.Text = settings.MoveToWindow1Key ?? "Z";
+                txtMoveToWindow2Key.Text = settings.MoveToWindow2Key ?? "X";
+                txtMoveToWindow3Key.Text = settings.MoveToWindow3Key ?? "C";
             }
             catch
             {
@@ -780,6 +1054,178 @@ namespace audition_nagurisaki
                     comboBox.SelectedItem = item;
                     break;
                 }
+            }
+        }
+        
+        private string ConvertWeekToText(int week)
+        {
+            return week switch
+            {
+                1 => "4-1",
+                2 => "3-8",
+                3 => "3-7",
+                4 => "3-6",
+                5 => "3-5",
+                6 => "3-4",
+                7 => "3-3",
+                8 => "3-2",
+                9 => "3-1",
+                10 => "4-8",
+                11 => "4-7",
+                12 => "4-6",
+                13 => "4-5",
+                14 => "4-4",
+                15 => "4-3",
+                16 => "4-2",
+                _ => "4-1"
+            };
+        }
+        
+        private async Task ExecuteFixedClicks(int windowNumber)
+        {
+            // 定点クリックが無効の場合は何もしない
+            if (chkAutoClickEnabled == null || chkAutoClickEnabled.IsChecked != true)
+                return;
+
+            var clickPoints = new List<(int x, int y, int delay)>();
+            
+            // 窓番号に応じたチェックボックスとテキストボックスを取得
+            CheckBox?[] checkBoxes;
+            TextBox?[] xBoxes;
+            TextBox?[] yBoxes;
+            TextBox?[] delayBoxes;
+            
+            switch (windowNumber)
+            {
+                case 1:
+                    checkBoxes = new[] { chkW1Click1, chkW1Click2, chkW1Click3, chkW1Click4, chkW1Click5, chkW1Click6, chkW1Click7, chkW1Click8, chkW1Click9 };
+                    xBoxes = new[] { txtW1X1, txtW1X2, txtW1X3, txtW1X4, txtW1X5, txtW1X6, txtW1X7, txtW1X8, txtW1X9 };
+                    yBoxes = new[] { txtW1Y1, txtW1Y2, txtW1Y3, txtW1Y4, txtW1Y5, txtW1Y6, txtW1Y7, txtW1Y8, txtW1Y9 };
+                    delayBoxes = new[] { txtW1D1, txtW1D2, txtW1D3, txtW1D4, txtW1D5, txtW1D6, txtW1D7, txtW1D8, txtW1D9 };
+                    break;
+                case 2:
+                    checkBoxes = new[] { chkW2Click1, chkW2Click2, chkW2Click3, chkW2Click4, chkW2Click5, chkW2Click6, chkW2Click7, chkW2Click8, chkW2Click9 };
+                    xBoxes = new[] { txtW2X1, txtW2X2, txtW2X3, txtW2X4, txtW2X5, txtW2X6, txtW2X7, txtW2X8, txtW2X9 };
+                    yBoxes = new[] { txtW2Y1, txtW2Y2, txtW2Y3, txtW2Y4, txtW2Y5, txtW2Y6, txtW2Y7, txtW2Y8, txtW2Y9 };
+                    delayBoxes = new[] { txtW2D1, txtW2D2, txtW2D3, txtW2D4, txtW2D5, txtW2D6, txtW2D7, txtW2D8, txtW2D9 };
+                    break;
+                case 3:
+                    checkBoxes = new[] { chkW3Click1, chkW3Click2, chkW3Click3, chkW3Click4, chkW3Click5, chkW3Click6, chkW3Click7, chkW3Click8, chkW3Click9 };
+                    xBoxes = new[] { txtW3X1, txtW3X2, txtW3X3, txtW3X4, txtW3X5, txtW3X6, txtW3X7, txtW3X8, txtW3X9 };
+                    yBoxes = new[] { txtW3Y1, txtW3Y2, txtW3Y3, txtW3Y4, txtW3Y5, txtW3Y6, txtW3Y7, txtW3Y8, txtW3Y9 };
+                    delayBoxes = new[] { txtW3D1, txtW3D2, txtW3D3, txtW3D4, txtW3D5, txtW3D6, txtW3D7, txtW3D8, txtW3D9 };
+                    break;
+                default:
+                    return;
+            }
+            
+            // 有効なクリック座標を収集（1から9まで順番に）
+            for (int i = 0; i < 9; i++)
+            {
+                if (checkBoxes[i]?.IsChecked == true &&
+                    int.TryParse(xBoxes[i]?.Text, out int x) &&
+                    int.TryParse(yBoxes[i]?.Text, out int y) &&
+                    int.TryParse(delayBoxes[i]?.Text, out int delay))
+                {
+                    clickPoints.Add((x, y, delay));
+                }
+            }
+
+            // 各ポイントを順番にクリック
+            foreach (var (x, y, delay) in clickPoints)
+            {
+                if (delay > 0)
+                {
+                    await Task.Delay(delay);
+                }
+                
+                PerformClick(x, y);
+            }
+        }
+        
+        private void PerformClick(int x, int y)
+        {
+            // 指定座標に移動してクリック
+            SetCursorPos(x, y);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
+        }
+        
+        private void RegisterFixedClickCoordinate()
+        {
+            if (!activeFixedClickTarget.HasValue)
+            {
+                txtStatus.Text = "定点クリック登録: アクティブな項目がありません";
+                return;
+            }
+            
+            if (!GetCursorPos(out POINT point))
+                return;
+            
+            var (window, index) = activeFixedClickTarget.Value;
+            
+            // 現在の窓・座標番号に応じてテキストボックスを取得
+            TextBox? xBox = null;
+            TextBox? yBox = null;
+            CheckBox? checkBox = null;
+            
+            switch (window)
+            {
+                case 1:
+                    (xBox, yBox, checkBox) = index switch
+                    {
+                        1 => (txtW1X1, txtW1Y1, chkW1Click1),
+                        2 => (txtW1X2, txtW1Y2, chkW1Click2),
+                        3 => (txtW1X3, txtW1Y3, chkW1Click3),
+                        4 => (txtW1X4, txtW1Y4, chkW1Click4),
+                        5 => (txtW1X5, txtW1Y5, chkW1Click5),
+                        6 => (txtW1X6, txtW1Y6, chkW1Click6),
+                        7 => (txtW1X7, txtW1Y7, chkW1Click7),
+                        8 => (txtW1X8, txtW1Y8, chkW1Click8),
+                        9 => (txtW1X9, txtW1Y9, chkW1Click9),
+                        _ => (null, null, null)
+                    };
+                    break;
+                case 2:
+                    (xBox, yBox, checkBox) = index switch
+                    {
+                        1 => (txtW2X1, txtW2Y1, chkW2Click1),
+                        2 => (txtW2X2, txtW2Y2, chkW2Click2),
+                        3 => (txtW2X3, txtW2Y3, chkW2Click3),
+                        4 => (txtW2X4, txtW2Y4, chkW2Click4),
+                        5 => (txtW2X5, txtW2Y5, chkW2Click5),
+                        6 => (txtW2X6, txtW2Y6, chkW2Click6),
+                        7 => (txtW2X7, txtW2Y7, chkW2Click7),
+                        8 => (txtW2X8, txtW2Y8, chkW2Click8),
+                        9 => (txtW2X9, txtW2Y9, chkW2Click9),
+                        _ => (null, null, null)
+                    };
+                    break;
+                case 3:
+                    (xBox, yBox, checkBox) = index switch
+                    {
+                        1 => (txtW3X1, txtW3Y1, chkW3Click1),
+                        2 => (txtW3X2, txtW3Y2, chkW3Click2),
+                        3 => (txtW3X3, txtW3Y3, chkW3Click3),
+                        4 => (txtW3X4, txtW3Y4, chkW3Click4),
+                        5 => (txtW3X5, txtW3Y5, chkW3Click5),
+                        6 => (txtW3X6, txtW3Y6, chkW3Click6),
+                        7 => (txtW3X7, txtW3Y7, chkW3Click7),
+                        8 => (txtW3X8, txtW3Y8, chkW3Click8),
+                        9 => (txtW3X9, txtW3Y9, chkW3Click9),
+                        _ => (null, null, null)
+                    };
+                    break;
+            }
+            
+            if (xBox != null && yBox != null)
+            {
+                xBox.Text = point.X.ToString();
+                yBox.Text = point.Y.ToString();
+                if (checkBox != null)
+                    checkBox.IsChecked = true;
+                
+                txtStatus.Text = $"定点クリック登録: 窓{window}-{index} X={point.X}, Y={point.Y}";
             }
         }
     }

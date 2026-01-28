@@ -48,7 +48,42 @@ namespace audition_nagurisaki
 
         public void SetWeekInfo(int week)
         {
-            // No display needed for now
+            string weekText = ConvertWeekToText(week);
+            txtWeekInfo.Text = weekText;
+            
+            // 3-3と4-6のテキストを赤色にする
+            if (weekText == "3-3" || weekText == "4-6")
+            {
+                txtWeekInfo.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                txtWeekInfo.Foreground = new SolidColorBrush(Colors.White);
+            }
+        }
+
+        private string ConvertWeekToText(int week)
+        {
+            return week switch
+            {
+                1 => "4-1",
+                2 => "3-8",
+                3 => "3-7",
+                4 => "3-6",
+                5 => "3-5",
+                6 => "3-4",
+                7 => "3-3",
+                8 => "3-2",
+                9 => "3-1",
+                10 => "4-8",
+                11 => "4-7",
+                12 => "4-6",
+                13 => "4-5",
+                14 => "4-4",
+                15 => "4-3",
+                16 => "4-2",
+                _ => "4-1"
+            };
         }
 
         public void UpdateJudgementResult(int window, int coord, string result, Color color)

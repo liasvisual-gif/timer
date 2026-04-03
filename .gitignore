@@ -106,3 +106,5 @@ orleans.codegen.cs
 publish/
 bin/
 obj/
+
+release_output/

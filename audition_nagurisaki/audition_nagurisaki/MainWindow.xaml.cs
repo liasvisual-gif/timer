@@ -11,6 +11,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace audition_nagurisaki
 {
@@ -20,14 +22,18 @@ namespace audition_nagurisaki
     public partial class MainWindow : Window
     {
         private DispatcherTimer detectionTimer;
-        private DispatcherTimer mouseTrackingTimer;
         private List<OverlayWindow> overlayWindows = new List<OverlayWindow>();
         private KeyboardHook? keyboardHook;
-        
-        private const string SettingsFilePath = "coordinates_settings.json";
+        private InputManager? inputManager;
+
+        private const string SettingsFileName = "coordinates_settings.json";
+        private static readonly string SettingsFilePath = System.IO.Path.Combine(
+            System.IO.Path.GetDirectoryName(Environment.ProcessPath ?? AppContext.BaseDirectory) ?? AppContext.BaseDirectory,
+            SettingsFileName);
         
         private string currentAuditionTab = "Default"; // 現在選択されている情報タブ
         private int currentWeek = 1; // 現在の週（1-16）
+        private bool isYamaAri = true; // 山あり/山なしモード
         
         // 現在アクティブな窓（1-3）
         private int activeWindow = 1;
@@ -35,10 +41,25 @@ namespace audition_nagurisaki
         // アクティブな座標登録対象（設定タブ用）
         private string? activeCoordTarget = null; // "11", "12", "21", "22", "31", "32"
         
-        // アクティブな定点クリック座標登録対象
-        private (int window, int index)? activeFixedClickTarget = null;
-        
-        
+        // プリセットコレクション
+        private ObservableCollection<ClickPreset> clickPresets = new();
+
+        // パターンコレクション
+        private ObservableCollection<ClickPattern> clickPatterns = new();
+
+        // オーディション進行ComboBox（現在表示中の窓用）
+        private Dictionary<int, ComboBox> yamaAriComboBoxes = new();
+        private Dictionary<int, ComboBox> yamaNashiComboBoxes = new();
+
+        // ボマー設定CheckBox（現在表示中の窓用）
+        private Dictionary<int, CheckBox> bomberCheckBoxes = new();
+        private HashSet<int> bomberWeeks = new() { 8, 13 };
+
+        // 窓別オーディション進行設定
+        private Dictionary<int, WindowProgressionSettings> windowProgressions = new();
+        private int currentProgressionWindow = 1;
+
+
         // 各窓の登録色（2座標から取得）
         private Color window1_color1;
         private Color window1_color2;
@@ -73,8 +94,10 @@ namespace audition_nagurisaki
         public MainWindow()
         {
             InitializeComponent();
-            this.Title = "審査員殴り";  // ウィンドウタイトルを日本語に設定
+            dgPresets.ItemsSource = clickPresets;
+            this.Title = "審査員殴り";
             SetJapaneseText();  // UIテキストを日本語に設定
+            InitializeProgressionComboBoxes();
             LoadSettings();  // 起動時に設定を読み込み
             InitializeTimers();
             InitializeKeyboardHook();
@@ -82,7 +105,9 @@ namespace audition_nagurisaki
 
         private void TabControlAuditions_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (tabControlAuditions.SelectedItem == tabSpotlight)
+            if (tabControlAuditions.SelectedItem == tabEreeBest)
+                currentAuditionTab = "EreeBest";
+            else if (tabControlAuditions.SelectedItem == tabSpotlight)
                 currentAuditionTab = "Spotlight";
             else if (tabControlAuditions.SelectedItem == tabOdotte)
                 currentAuditionTab = "Odotte";
@@ -106,13 +131,9 @@ namespace audition_nagurisaki
             txtTitle.Text = "審査員殴り";
             tabSettings.Header = "設定";
             tabInfo.Header = "情報";
-            grpWindow1.Header = "窓1 識別座標";
-            grpWindow2.Header = "窓2 識別座標";
-            grpWindow3.Header = "窓3 識別座標";
-            
-            
-            // マウス座標
-            lblMousePos.Text = "マウス座標: ";
+            grpWindow1.Header = "8窓1 識別座標";
+            grpWindow2.Header = "8窓2 識別座標";
+            grpWindow3.Header = "8窓3 識別座標";
             
             // 週情報
             grpWeekInfo.Header = "週情報";
@@ -121,13 +142,15 @@ namespace audition_nagurisaki
             
             
             // 情報タブ
+            tabEreeBest.Header = "えれぇベスト";
             tabSpotlight.Header = "spotlight";
             tabOdotte.Header = "踊っていいとも";
             tabLegend.Header = "legend";
             tabNanasai.Header = "七彩";
             tabUtahime.Header = "歌姫";
-            
-            
+
+
+            lblEreeBestTitle.Text = "オーディション殴り先ルール - えれぇベスト";
             lblSpotlightTitle.Text = "オーディション殴り先ルール - spotlight";
             lblOdotteTitle.Text = "オーディション殴り先ルール - 踊っていいとも";
             lblLegendTitle.Text = "オーディション殴り先ルール - legend";
@@ -151,78 +174,109 @@ namespace audition_nagurisaki
             detectionTimer = new DispatcherTimer();
             detectionTimer.Interval = TimeSpan.FromMilliseconds(100);
             detectionTimer.Tick += DetectionTimer_Tick;
-
-            // マウス座標追跡タイマー
-            mouseTrackingTimer = new DispatcherTimer();
-            mouseTrackingTimer.Interval = TimeSpan.FromMilliseconds(50);
-            mouseTrackingTimer.Tick += MouseTrackingTimer_Tick;
-            mouseTrackingTimer.Start(); // 常に実行
         }
 
         private void InitializeKeyboardHook()
         {
-            keyboardHook = new KeyboardHook();
-            keyboardHook.KeyPressed += KeyboardHook_KeyPressed;
-            keyboardHook.Start(); // アプリ起動時にキーボードフックを開始
+            inputManager = new InputManager();
+            inputManager.InputPressed += InputManager_InputPressed;
+            inputManager.Start();
         }
 
-        private void KeyboardHook_KeyPressed(object? sender, Key e)
+        private void InputManager_InputPressed(object? sender, string inputString)
         {
             Dispatcher.Invoke(() =>
             {
-                string keyString = e.ToString().ToUpper();
-                
                 // デバッグ用ログ
-                txtStatus.Text = $"キー検出: {keyString}";
-                
+                txtStatus.Text = $"入力検出: {inputString}";
+
                 // 窓移動キーチェック
-                if (KeyMatches(keyString, e, txtMoveToWindow1Key.Text))
+                if (InputMatches(inputString, txtMoveToWindow1Key.Text))
                 {
                     SetActiveWindow(1);
                     return;
                 }
-                if (KeyMatches(keyString, e, txtMoveToWindow2Key.Text))
+                if (InputMatches(inputString, txtMoveToWindow2Key.Text))
                 {
                     SetActiveWindow(2);
                     return;
                 }
-                if (KeyMatches(keyString, e, txtMoveToWindow3Key.Text))
+                if (InputMatches(inputString, txtMoveToWindow3Key.Text))
                 {
                     SetActiveWindow(3);
                     return;
                 }
-                
+                if (!string.IsNullOrWhiteSpace(txtMoveToWindowSKey.Text) && InputMatches(inputString, txtMoveToWindowSKey.Text))
+                {
+                    SetActiveWindow(0);
+                    return;
+                }
+                if (!string.IsNullOrWhiteSpace(txtMoveToWindow3W1Key.Text) && InputMatches(inputString, txtMoveToWindow3W1Key.Text))
+                {
+                    SetActiveWindow(4);
+                    return;
+                }
+                if (!string.IsNullOrWhiteSpace(txtMoveToWindow3W2Key.Text) && InputMatches(inputString, txtMoveToWindow3W2Key.Text))
+                {
+                    SetActiveWindow(5);
+                    return;
+                }
+                if (!string.IsNullOrWhiteSpace(txtMoveToWindow3W3Key.Text) && InputMatches(inputString, txtMoveToWindow3W3Key.Text))
+                {
+                    SetActiveWindow(6);
+                    return;
+                }
+
                 // 判別キーチェック（アクティブ窓のみ）
-                if (KeyMatches(keyString, e, txtJudgeKey.Text))
+                if (InputMatches(inputString, txtJudgeKey.Text))
                 {
                     PerformWindowJudgement(activeWindow);
                     return;
                 }
-                
+
                 // 週の進む/戻るホットキー
-                if (e == Key.Left)
+                if (inputString == "Left")
                 {
                     BtnWeekBack_Click(null, null);
                     return;
                 }
-                if (e == Key.Right)
+                if (inputString == "Right")
                 {
                     BtnWeekForward_Click(null, null);
                     return;
                 }
-                
-                // 座標登録キー（設定タブ用）
-                if (KeyMatches(keyString, e, txtCoordRegKey.Text))
+
+                // 座標登録キー（統合）
+                if (InputMatches(inputString, txtCoordRegKey.Text))
                 {
-                    RegisterCoordinate();
+                    if (activeCoordTarget != null)
+                        RegisterCoordinate();
+                    else if (dgPresets.SelectedIndex >= 0)
+                        RegisterFixedClickCoordinate();
+                    else
+                        txtStatus.Text = "座標登録: アクティブな項目がありません";
                     return;
                 }
-                
-                // 定点クリック座標登録キー
-                if (KeyMatches(keyString, e, txtFixedClickRegKey.Text))
+
+                // 山あり/山なし切り替えキー
+                if (!string.IsNullOrWhiteSpace(txtYamaToggleKey.Text) && InputMatches(inputString, txtYamaToggleKey.Text))
                 {
-                    RegisterFixedClickCoordinate();
+                    BtnToggleYama_Click(null, null);
                     return;
+                }
+
+                // パターンホットキーチェック（窓一致のみ実行）
+                foreach (var pattern in clickPatterns)
+                {
+                    if (!string.IsNullOrWhiteSpace(pattern.Hotkey) && InputMatches(inputString, pattern.Hotkey))
+                    {
+                        if (pattern.WindowNumber == -1 || pattern.WindowNumber == activeWindow)
+                        {
+                            _ = ExecuteFixedClicks(pattern);
+                            txtStatus.Text = $"パターン実行: {pattern.Name}";
+                            return;
+                        }
+                    }
                 }
             });
         }
@@ -230,8 +284,64 @@ namespace audition_nagurisaki
         private void SetActiveWindow(int windowNumber)
         {
             activeWindow = windowNumber;
-            txtCurrentWindow.Text = $"窓{windowNumber}";
-            txtStatus.Text = $"窓{windowNumber}に移動しました";
+            string windowName = windowNumber switch
+            {
+                0 => "単窓",
+                4 => "3窓1",
+                5 => "3窓2",
+                6 => "3窓3",
+                _ => $"8窓{windowNumber}"
+            };
+            txtCurrentWindow.Text = windowName;
+
+            int comboIndex = windowNumber switch
+            {
+                1 => 0,
+                2 => 1,
+                3 => 2,
+                0 => 3,
+                4 => 4,
+                5 => 5,
+                6 => 6,
+                _ => 0
+            };
+            if (cmbActiveWindow.SelectedIndex != comboIndex)
+                cmbActiveWindow.SelectedIndex = comboIndex;
+
+            txtStatus.Text = $"{windowName}に移動しました";
+
+            // オデ進行タブの対象窓をアクティブ窓に同期
+            if (yamaAriComboBoxes.Count > 0)
+                SaveCurrentProgressionToDict();
+            currentProgressionWindow = windowNumber;
+            if (cmbProgressionWindow.SelectedIndex != comboIndex)
+                cmbProgressionWindow.SelectedIndex = comboIndex;
+            else
+                RebuildProgressionUI();
+
+            // 窓切替時にオーバーレイのボマー設定を更新
+            var newBomber = new HashSet<int>(GetWindowProgression(windowNumber).BomberWeeks);
+            foreach (var overlayWindow in overlayWindows)
+            {
+                overlayWindow.SetBomberWeeks(newBomber);
+                overlayWindow.SetWeekInfo(currentWeek);
+            }
+        }
+
+        private void BtnSwitchWindow_Click(object sender, RoutedEventArgs e)
+        {
+            int windowNumber = cmbActiveWindow.SelectedIndex switch
+            {
+                0 => 1,
+                1 => 2,
+                2 => 3,
+                3 => 0,
+                4 => 4,
+                5 => 5,
+                6 => 6,
+                _ => 1
+            };
+            SetActiveWindow(windowNumber);
         }
         
         private void RegisterCoordinate()
@@ -271,6 +381,38 @@ namespace audition_nagurisaki
                     txtX32.Text = point.X.ToString();
                     txtY32.Text = point.Y.ToString();
                     break;
+                case "S1":
+                    txtXS1.Text = point.X.ToString();
+                    txtYS1.Text = point.Y.ToString();
+                    break;
+                case "S2":
+                    txtXS2.Text = point.X.ToString();
+                    txtYS2.Text = point.Y.ToString();
+                    break;
+                case "3W11":
+                    txtX3W11.Text = point.X.ToString();
+                    txtY3W11.Text = point.Y.ToString();
+                    break;
+                case "3W12":
+                    txtX3W12.Text = point.X.ToString();
+                    txtY3W12.Text = point.Y.ToString();
+                    break;
+                case "3W21":
+                    txtX3W21.Text = point.X.ToString();
+                    txtY3W21.Text = point.Y.ToString();
+                    break;
+                case "3W22":
+                    txtX3W22.Text = point.X.ToString();
+                    txtY3W22.Text = point.Y.ToString();
+                    break;
+                case "3W31":
+                    txtX3W31.Text = point.X.ToString();
+                    txtY3W31.Text = point.Y.ToString();
+                    break;
+                case "3W32":
+                    txtX3W32.Text = point.X.ToString();
+                    txtY3W32.Text = point.Y.ToString();
+                    break;
             }
             
             txtStatus.Text = $"座標登録: {activeCoordTarget} X={point.X}, Y={point.Y}";
@@ -288,43 +430,139 @@ namespace audition_nagurisaki
                     "rbCoord22" => "22",
                     "rbCoord31" => "31",
                     "rbCoord32" => "32",
+                    "rbCoordS1" => "S1",
+                    "rbCoordS2" => "S2",
+                    "rbCoord3W11" => "3W11",
+                    "rbCoord3W12" => "3W12",
+                    "rbCoord3W21" => "3W21",
+                    "rbCoord3W22" => "3W22",
+                    "rbCoord3W31" => "3W31",
+                    "rbCoord3W32" => "3W32",
                     _ => null
                 };
                 
                 if (txtCoordRegStatus != null && activeCoordTarget != null)
                 {
-                    int w = int.Parse(activeCoordTarget[0].ToString());
-                    int c = int.Parse(activeCoordTarget[1].ToString());
-                    txtCoordRegStatus.Text = $"(アクティブ: 窓{w}-座標{c})";
+                    if (activeCoordTarget.StartsWith("S"))
+                    {
+                        int c = int.Parse(activeCoordTarget[1].ToString());
+                        txtCoordRegStatus.Text = $"(アクティブ: 単窓-座標{c})";
+                    }
+                    else if (activeCoordTarget.StartsWith("3W"))
+                    {
+                        int w = int.Parse(activeCoordTarget[2].ToString());
+                        int c = int.Parse(activeCoordTarget[3].ToString());
+                        txtCoordRegStatus.Text = $"(アクティブ: 3窓{w}-座標{c})";
+                    }
+                    else
+                    {
+                        int w = int.Parse(activeCoordTarget[0].ToString());
+                        int c = int.Parse(activeCoordTarget[1].ToString());
+                        txtCoordRegStatus.Text = $"(アクティブ: 8窓{w}-座標{c})";
+                    }
                 }
             }
         }
         
-        private void FixedClickRadioButton_Checked(object sender, RoutedEventArgs e)
+        private void DgPresets_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is RadioButton rb)
+            if (dgPresets.SelectedItem is ClickPreset preset)
             {
-                activeFixedClickTarget = rb.Name switch
-                {
-                    "rbW1C1" => (1, 1), "rbW1C2" => (1, 2), "rbW1C3" => (1, 3),
-                    "rbW1C4" => (1, 4), "rbW1C5" => (1, 5), "rbW1C6" => (1, 6),
-                    "rbW1C7" => (1, 7), "rbW1C8" => (1, 8), "rbW1C9" => (1, 9),
-                    "rbW2C1" => (2, 1), "rbW2C2" => (2, 2), "rbW2C3" => (2, 3),
-                    "rbW2C4" => (2, 4), "rbW2C5" => (2, 5), "rbW2C6" => (2, 6),
-                    "rbW2C7" => (2, 7), "rbW2C8" => (2, 8), "rbW2C9" => (2, 9),
-                    "rbW3C1" => (3, 1), "rbW3C2" => (3, 2), "rbW3C3" => (3, 3),
-                    "rbW3C4" => (3, 4), "rbW3C5" => (3, 5), "rbW3C6" => (3, 6),
-                    "rbW3C7" => (3, 7), "rbW3C8" => (3, 8), "rbW3C9" => (3, 9),
-                    _ => null
-                };
-                
-                if (txtFixedClickRegStatus != null && activeFixedClickTarget.HasValue)
-                {
-                    var (w, i) = activeFixedClickTarget.Value;
-                    txtFixedClickRegStatus.Text = $"(アクティブ: 窓{w}-{i})";
-                }
+                activeCoordTarget = null;
+                txtPresetName.Text = preset.Name;
+                txtPresetX.Text = preset.X.ToString();
+                txtPresetY.Text = preset.Y.ToString();
+                txtPresetDelay.Text = preset.Delay.ToString();
+                txtCoordRegStatus.Text = $"(アクティブ: {preset.Name})";
+            }
+            else
+            {
+                txtPresetName.Text = "";
+                txtPresetX.Text = "";
+                txtPresetY.Text = "";
+                txtPresetDelay.Text = "";
+                if (activeCoordTarget == null)
+                    txtCoordRegStatus.Text = "(アクティブ: なし)";
             }
         }
+
+        private void BtnAddPreset_Click(object sender, RoutedEventArgs e)
+        {
+            var preset = new ClickPreset { Name = $"定点{clickPresets.Count + 1}" };
+            clickPresets.Add(preset);
+            dgPresets.SelectedItem = preset;
+        }
+
+        private void BtnDeletePreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgPresets.SelectedIndex >= 0)
+            {
+                string deletedName = clickPresets[dgPresets.SelectedIndex].Name;
+                int idx = dgPresets.SelectedIndex;
+                clickPresets.RemoveAt(idx);
+
+                foreach (var pattern in clickPatterns)
+                    pattern.PresetNames.RemoveAll(n => n == deletedName);
+
+                if (clickPresets.Count > 0)
+                    dgPresets.SelectedIndex = Math.Min(idx, clickPresets.Count - 1);
+            }
+        }
+
+        private void BtnApplyPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgPresets.SelectedItem is ClickPreset preset)
+            {
+                string oldName = preset.Name;
+                string newName = txtPresetName.Text;
+                preset.Name = newName;
+                preset.X = int.TryParse(txtPresetX.Text, out int x) ? x : 0;
+                preset.Y = int.TryParse(txtPresetY.Text, out int y) ? y : 0;
+                preset.Delay = int.TryParse(txtPresetDelay.Text, out int d) ? d : 0;
+
+                if (oldName != newName)
+                {
+                    foreach (var pattern in clickPatterns)
+                        for (int i = 0; i < pattern.PresetNames.Count; i++)
+                            if (pattern.PresetNames[i] == oldName)
+                                pattern.PresetNames[i] = newName;
+                }
+
+                dgPresets.Items.Refresh();
+                txtStatus.Text = $"{preset.Name} 保存しました";
+            }
+        }
+
+        private void BtnMovePresetUp_Click(object sender, RoutedEventArgs e)
+        {
+            int idx = dgPresets.SelectedIndex;
+            if (idx > 0)
+            {
+                clickPresets.Move(idx, idx - 1);
+                dgPresets.SelectedIndex = idx - 1;
+            }
+        }
+
+        private void BtnMovePresetDown_Click(object sender, RoutedEventArgs e)
+        {
+            int idx = dgPresets.SelectedIndex;
+            if (idx >= 0 && idx < clickPresets.Count - 1)
+            {
+                clickPresets.Move(idx, idx + 1);
+                dgPresets.SelectedIndex = idx + 1;
+            }
+        }
+
+        private void AdjustPresetField(TextBox textBox, int delta)
+        {
+            if (int.TryParse(textBox.Text, out int val))
+                textBox.Text = (val + delta).ToString();
+            else
+                textBox.Text = "0";
+        }
+
+        private void BtnPresetDelayUp_Click(object sender, RoutedEventArgs e) => AdjustPresetField(txtPresetDelay, 1);
+        private void BtnPresetDelayDown_Click(object sender, RoutedEventArgs e) => AdjustPresetField(txtPresetDelay, -1);
         
         private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -341,43 +579,65 @@ namespace audition_nagurisaki
                     rbCoord22.IsChecked = false;
                     rbCoord31.IsChecked = false;
                     rbCoord32.IsChecked = false;
+                    rbCoordS1.IsChecked = false;
+                    rbCoordS2.IsChecked = false;
+                    rbCoord3W11.IsChecked = false;
+                    rbCoord3W12.IsChecked = false;
+                    rbCoord3W21.IsChecked = false;
+                    rbCoord3W22.IsChecked = false;
+                    rbCoord3W31.IsChecked = false;
+                    rbCoord3W32.IsChecked = false;
                     txtCoordRegStatus.Text = "(アクティブ: なし)";
                 }
                 
-                // 定点クリック座標登録アクティブを解除
-                if (activeFixedClickTarget.HasValue)
+                // 定点クリック座標登録アクティブを解除（プリセットエリア外クリック時）
+                if (dgPresets.SelectedIndex >= 0 && !IsVisualDescendantOf(e.OriginalSource as DependencyObject, presetRegArea))
                 {
-                    activeFixedClickTarget = null;
-                    // すべてのRadioButtonのチェックを解除
-                    ClearAllFixedClickRadioButtons();
-                    txtFixedClickRegStatus.Text = "(アクティブ: なし)";
+                    dgPresets.SelectedIndex = -1;
+                    if (activeCoordTarget == null)
+                        txtCoordRegStatus.Text = "(アクティブ: なし)";
                 }
             }
         }
         
-        private void ClearAllFixedClickRadioButtons()
+        private static bool IsVisualDescendantOf(DependencyObject? child, DependencyObject parent)
         {
-            rbW1C1.IsChecked = false; rbW1C2.IsChecked = false; rbW1C3.IsChecked = false;
-            rbW1C4.IsChecked = false; rbW1C5.IsChecked = false; rbW1C6.IsChecked = false;
-            rbW1C7.IsChecked = false; rbW1C8.IsChecked = false; rbW1C9.IsChecked = false;
-            rbW2C1.IsChecked = false; rbW2C2.IsChecked = false; rbW2C3.IsChecked = false;
-            rbW2C4.IsChecked = false; rbW2C5.IsChecked = false; rbW2C6.IsChecked = false;
-            rbW2C7.IsChecked = false; rbW2C8.IsChecked = false; rbW2C9.IsChecked = false;
-            rbW3C1.IsChecked = false; rbW3C2.IsChecked = false; rbW3C3.IsChecked = false;
-            rbW3C4.IsChecked = false; rbW3C5.IsChecked = false; rbW3C6.IsChecked = false;
-            rbW3C7.IsChecked = false; rbW3C8.IsChecked = false; rbW3C9.IsChecked = false;
+            while (child != null)
+            {
+                if (child == parent) return true;
+                child = VisualTreeHelper.GetParent(child);
+            }
+            return false;
         }
 
-        private bool KeyMatches(string keyString, Key e, string targetKey)
+        private bool InputMatches(string inputString, string targetKey)
         {
-            string target = targetKey.ToUpper();
-            if (keyString == target)
+            string target = targetKey.ToUpper().Trim();
+            string input = inputString.ToUpper();
+            
+            // 直接一致
+            if (input == target)
                 return true;
-            if (e >= Key.D1 && e <= Key.D9 && keyString == "D" + target)
-                return true;
+
+            // 数字キー対応
+            if (input.StartsWith("D") && input.Length == 2 && char.IsDigit(input[1]))
+            {
+                string numberPart = input.Substring(1);
+                if (target == numberPart)
+                    return true;
+            }
+            
+            // テンキー対応
+            if (target.StartsWith("NUMPAD") || target.StartsWith("NUM"))
+            {
+                string numPart = target.Replace("NUMPAD", "").Replace("NUM", "");
+                return input.Contains(numPart);
+            }
+            
             // スペースキー対応
-            if (target == "SPACE" && e == Key.Space)
+            if (target == "SPACE" && input == "SPACE")
                 return true;
+            
             return false;
         }
 
@@ -479,8 +739,6 @@ namespace audition_nagurisaki
 
         private void PerformWindowJudgement(int windowNumber)
         {
-            txtStatus.Text = $"PerformWindowJudgement({windowNumber})呼び出し";
-            
             if (overlayWindows.Count == 0)
             {
                 txtStatus.Text = "表示ウィンドウが開いていません";
@@ -497,7 +755,7 @@ namespace audition_nagurisaki
                         if (!int.TryParse(txtX11.Text, out x1) || !int.TryParse(txtY11.Text, out y1) ||
                             !int.TryParse(txtX12.Text, out x2) || !int.TryParse(txtY12.Text, out y2))
                         {
-                            txtStatus.Text = "窓1の座標が設定されていません";
+                            txtStatus.Text = "8窓1の座標が設定されていません";
                             return;
                         }
                         break;
@@ -505,7 +763,7 @@ namespace audition_nagurisaki
                         if (!int.TryParse(txtX21.Text, out x1) || !int.TryParse(txtY21.Text, out y1) ||
                             !int.TryParse(txtX22.Text, out x2) || !int.TryParse(txtY22.Text, out y2))
                         {
-                            txtStatus.Text = "窓2の座標が設定されていません";
+                            txtStatus.Text = "8窓2の座標が設定されていません";
                             return;
                         }
                         break;
@@ -513,7 +771,39 @@ namespace audition_nagurisaki
                         if (!int.TryParse(txtX31.Text, out x1) || !int.TryParse(txtY31.Text, out y1) ||
                             !int.TryParse(txtX32.Text, out x2) || !int.TryParse(txtY32.Text, out y2))
                         {
-                            txtStatus.Text = "窓3の座標が設定されていません";
+                            txtStatus.Text = "8窓3の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 0:
+                        if (!int.TryParse(txtXS1.Text, out x1) || !int.TryParse(txtYS1.Text, out y1) ||
+                            !int.TryParse(txtXS2.Text, out x2) || !int.TryParse(txtYS2.Text, out y2))
+                        {
+                            txtStatus.Text = "単窓の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 4:
+                        if (!int.TryParse(txtX3W11.Text, out x1) || !int.TryParse(txtY3W11.Text, out y1) ||
+                            !int.TryParse(txtX3W12.Text, out x2) || !int.TryParse(txtY3W12.Text, out y2))
+                        {
+                            txtStatus.Text = "3窓1の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 5:
+                        if (!int.TryParse(txtX3W21.Text, out x1) || !int.TryParse(txtY3W21.Text, out y1) ||
+                            !int.TryParse(txtX3W22.Text, out x2) || !int.TryParse(txtY3W22.Text, out y2))
+                        {
+                            txtStatus.Text = "3窓2の座標が設定されていません";
+                            return;
+                        }
+                        break;
+                    case 6:
+                        if (!int.TryParse(txtX3W31.Text, out x1) || !int.TryParse(txtY3W31.Text, out y1) ||
+                            !int.TryParse(txtX3W32.Text, out x2) || !int.TryParse(txtY3W32.Text, out y2))
+                        {
+                            txtStatus.Text = "3窓3の座標が設定されていません";
                             return;
                         }
                         break;
@@ -526,11 +816,12 @@ namespace audition_nagurisaki
                 // RGB最小値を判定
                 string lowest1 = GetLowestRGB(color1);
                 string lowest2 = GetLowestRGB(color2);
+                
+                // 使用するルールタブを表示
+                string tabPrefix = GetTabPrefixByWeek(currentWeek);
 
                 // ルールと照合
                 string result = CheckRules(lowest1, lowest2, color1, color2, windowNumber);
-
-                txtStatus.Text = $"判別結果: {result} (色1:{lowest1}, 色2:{lowest2})";
 
                 // 結果を表示（すべてのウィンドウに）
                 if (!string.IsNullOrEmpty(result))
@@ -539,10 +830,7 @@ namespace audition_nagurisaki
                     {
                         overlayWindow.ShowResultText(result);
                     }
-                    
-                    // 定点クリックを実行（窓番号に対応したクリック座標を使用）
-                    _ = ExecuteFixedClicks(windowNumber);
-                    
+
                     // 週を自動的に更新（1-16でループ）
                     currentWeek++;
                     if (currentWeek > 16)
@@ -555,11 +843,13 @@ namespace audition_nagurisaki
                         overlayWindow.SetWeekInfo(currentWeek);
                     }
                     
-                    txtStatus.Text = $"窓{windowNumber}判別完了: {result} - {ConvertWeekToText(currentWeek)}";
+                    string windowName = windowNumber switch { 0 => "単窓", 4 => "3窓1", 5 => "3窓2", 6 => "3窓3", _ => $"8窓{windowNumber}" };
+                    txtStatus.Text = $"{windowName}: {result} ({tabPrefix}ルール使用, 色1:{lowest1}, 色2:{lowest2})";
                 }
                 else
                 {
-                    txtStatus.Text = $"窓{windowNumber}: ルール不一致";
+                    string windowName2 = windowNumber switch { 0 => "単窓", 4 => "3窓1", 5 => "3窓2", 6 => "3窓3", _ => $"8窓{windowNumber}" };
+                    txtStatus.Text = $"{windowName2}: ルール不一致 ({tabPrefix}ルール, 色1:{lowest1}, 色2:{lowest2})";
                 }
             }
             catch (Exception ex)
@@ -634,33 +924,39 @@ namespace audition_nagurisaki
             
             try
             {
-                ruleSet.Rule1_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord1RGB", "Da");
-                ruleSet.Rule1_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule1Coord2RGB", "Vo");
+                // ルール1: VoDaVi (Vo が1位、Da が2位)
+                ruleSet.Rule1_Coord1RGB = "Vo";  // 座標1で1位（最小値）
+                ruleSet.Rule1_Coord2RGB = "Da";  // 座標2で2位（最小値）
                 ruleSet.Rule1_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule1Display1", "Vo");
                 ruleSet.Rule1_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule1Display2", "Vo");
 
-                ruleSet.Rule2_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord1RGB", "Vo");
-                ruleSet.Rule2_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule2Coord2RGB", "Da");
+                // ルール2: VoViDa (Vo が1位、Vi が2位)
+                ruleSet.Rule2_Coord1RGB = "Vo";  // 座標1で1位（最小値）
+                ruleSet.Rule2_Coord2RGB = "Vi";  // 座標2で2位（最小値）
                 ruleSet.Rule2_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule2Display1", "Da");
                 ruleSet.Rule2_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule2Display2", "Da");
 
-                ruleSet.Rule3_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord1RGB", "Vi");
-                ruleSet.Rule3_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule3Coord2RGB", "Vi");
+                // ルール3: DaVoVi (Da が1位、Vo が2位)
+                ruleSet.Rule3_Coord1RGB = "Da";  // 座標1で1位（最小値）
+                ruleSet.Rule3_Coord2RGB = "Vo";  // 座標2で2位（最小値）
                 ruleSet.Rule3_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule3Display1", "Vi");
                 ruleSet.Rule3_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule3Display2", "Vi");
 
-                ruleSet.Rule4_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord1RGB", "Da");
-                ruleSet.Rule4_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule4Coord2RGB", "Vi");
+                // ルール4: DaViVo (Da が1位、Vi が2位)
+                ruleSet.Rule4_Coord1RGB = "Da";  // 座標1で1位（最小値）
+                ruleSet.Rule4_Coord2RGB = "Vi";  // 座標2で2位（最小値）
                 ruleSet.Rule4_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule4Display1", "Vi");
                 ruleSet.Rule4_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule4Display2", "Da");
 
-                ruleSet.Rule5_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord1RGB", "Vi");
-                ruleSet.Rule5_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule5Coord2RGB", "Da");
+                // ルール5: ViVoDa (Vi が1位、Vo が2位)
+                ruleSet.Rule5_Coord1RGB = "Vi";  // 座標1で1位（最小値）
+                ruleSet.Rule5_Coord2RGB = "Vo";  // 座標2で2位（最小値）
                 ruleSet.Rule5_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule5Display1", "Da");
                 ruleSet.Rule5_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule5Display2", "Vi");
 
-                ruleSet.Rule6_Coord1RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord1RGB", "Vo");
-                ruleSet.Rule6_Coord2RGB = GetComboBoxValue($"cmb{tabPrefix}Rule6Coord2RGB", "Vi");
+                // ルール6: ViDaVo (Vi が1位、Da が2位)
+                ruleSet.Rule6_Coord1RGB = "Vi";  // 座標1で1位（最小値）
+                ruleSet.Rule6_Coord2RGB = "Da";  // 座標2で2位（最小値）
                 ruleSet.Rule6_Display1 = GetComboBoxValue($"cmb{tabPrefix}Rule6Display1", "Vo");
                 ruleSet.Rule6_Display2 = GetComboBoxValue($"cmb{tabPrefix}Rule6Display2", "Vi");
             }
@@ -672,18 +968,193 @@ namespace audition_nagurisaki
             return ruleSet;
         }
 
-        // 週に応じたタブのプレフィックスを取得
+        // 週に応じたタブのプレフィックスを取得（アクティブ窓の進行設定を使用）
         private string GetTabPrefixByWeek(int week)
         {
+            return GetTabPrefixByWeekForWindow(week, activeWindow);
+        }
+
+        private string GetTabPrefixByWeekForWindow(int week, int windowNumber)
+        {
+            var settings = GetWindowProgression(windowNumber);
+            var progression = isYamaAri ? settings.YamaAriProgression : settings.YamaNashiProgression;
+            if (progression.TryGetValue(week, out var tag) && !string.IsNullOrEmpty(tag))
+                return tag;
+
+            // デフォルト（山あり進行）
             return week switch
             {
-                1 => "Spotlight",           // 週1: spotlight
-                >= 2 and <= 8 => "Odotte",  // 週2-8: 踊っていいとも
-                9 => "Legend",              // 週9: legend
-                >= 10 and <= 12 => "Nanasai", // 週10-12: 七彩
-                >= 13 and <= 16 => "Utahime", // 週13-16: 歌姫
-                _ => "Spotlight"            // デフォルト
+                1 => "Spotlight",
+                >= 2 and <= 8 => "Odotte",
+                9 => "Legend",
+                >= 10 and <= 12 => "Nanasai",
+                >= 13 and <= 16 => "Utahime",
+                _ => "Spotlight"
             };
+        }
+
+        private void BtnToggleYama_Click(object sender, RoutedEventArgs e)
+        {
+            isYamaAri = !isYamaAri;
+            UpdateYamaModeDisplay();
+        }
+
+        private void UpdateYamaModeDisplay()
+        {
+            if (isYamaAri)
+            {
+                btnToggleYama.Content = "山あり";
+                btnToggleYama.Background = new SolidColorBrush(Colors.LimeGreen);
+                txtYamaModeStatus.Text = "山あり";
+                txtYamaModeStatus.Foreground = new SolidColorBrush(Colors.Green);
+            }
+            else
+            {
+                btnToggleYama.Content = "山なし";
+                btnToggleYama.Background = new SolidColorBrush(Colors.Orange);
+                txtYamaModeStatus.Text = "山なし";
+                txtYamaModeStatus.Foreground = new SolidColorBrush(Colors.OrangeRed);
+            }
+
+            foreach (var overlayWindow in overlayWindows)
+            {
+                overlayWindow.SetYamaMode(isYamaAri);
+            }
+        }
+
+        private HashSet<int> GetBomberWeeksFromCheckBoxes()
+        {
+            var weeks = new HashSet<int>();
+            foreach (var kvp in bomberCheckBoxes)
+            {
+                if (kvp.Value.IsChecked == true)
+                    weeks.Add(kvp.Key);
+            }
+            return weeks;
+        }
+
+        private static readonly string[] AuditionTypes = ["えれぇベスト", "spotlight", "踊っていいとも", "legend", "七彩", "歌姫"];
+        private static readonly string[] AuditionTags = ["EreeBest", "Spotlight", "Odotte", "Legend", "Nanasai", "Utahime"];
+
+        private static readonly Dictionary<int, int> DefaultYamaAri = new()
+        {
+            {1, 1}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}, {7, 2}, {8, 2},
+            {9, 3}, {10, 4}, {11, 4}, {12, 4}, {13, 5}, {14, 5}, {15, 5}, {16, 5}
+        };
+
+        private void InitializeProgressionComboBoxes()
+        {
+            // すべての窓に対してデフォルト設定を作成
+            foreach (int wn in new[] { 0, 1, 2, 3, 4, 5, 6 })
+            {
+                if (!windowProgressions.ContainsKey(wn))
+                    windowProgressions[wn] = new WindowProgressionSettings();
+            }
+            // 最初の窓（8窓1）のUIを構築
+            currentProgressionWindow = 1;
+            RebuildProgressionUI();
+        }
+
+        private WindowProgressionSettings GetWindowProgression(int windowNumber)
+        {
+            if (windowProgressions.TryGetValue(windowNumber, out var settings))
+                return settings;
+            var def = new WindowProgressionSettings();
+            windowProgressions[windowNumber] = def;
+            return def;
+        }
+
+        private void SaveCurrentProgressionToDict()
+        {
+            var settings = GetWindowProgression(currentProgressionWindow);
+            settings.YamaAriProgression = GetProgressionFromComboBoxes(yamaAriComboBoxes);
+            settings.YamaNashiProgression = GetProgressionFromComboBoxes(yamaNashiComboBoxes);
+            settings.BomberWeeks = GetBomberWeeksFromCheckBoxes().ToList();
+        }
+
+        private void RebuildProgressionUI()
+        {
+            yamaAriComboBoxes.Clear();
+            yamaNashiComboBoxes.Clear();
+            bomberCheckBoxes.Clear();
+            yamaAriContainer.Children.Clear();
+            yamaNashiContainer.Children.Clear();
+            bomberCheckContainer.Children.Clear();
+
+            var settings = GetWindowProgression(currentProgressionWindow);
+            bomberWeeks = new HashSet<int>(settings.BomberWeeks);
+
+            BuildBomberCheckBoxes();
+            BuildProgressionGrid(yamaAriContainer, yamaAriComboBoxes, DefaultYamaAri);
+            BuildProgressionGrid(yamaNashiContainer, yamaNashiComboBoxes, DefaultYamaAri);
+
+            LoadProgressionComboBoxes(yamaAriComboBoxes, settings.YamaAriProgression);
+            LoadProgressionComboBoxes(yamaNashiComboBoxes, settings.YamaNashiProgression);
+        }
+
+        private void CmbProgressionWindow_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+           if (yamaAriContainer == null) return; // InitializeComponent() 完了前は処理しない
+            if (cmbProgressionWindow.SelectedItem is not ComboBoxItem item) return;
+            if (!int.TryParse(item.Tag?.ToString(), out int wn)) return;
+            if (yamaAriComboBoxes.Count > 0)
+                SaveCurrentProgressionToDict();
+            currentProgressionWindow = wn;
+            RebuildProgressionUI();
+        }
+
+        private void BtnCopyProgressionToAll_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentProgressionToDict();
+            var src = GetWindowProgression(currentProgressionWindow);
+            foreach (int wn in new[] { 0, 1, 2, 3, 4, 5, 6 })
+            {
+                if (wn == currentProgressionWindow) continue;
+                windowProgressions[wn] = new WindowProgressionSettings
+                {
+                    YamaAriProgression = new Dictionary<int, string>(src.YamaAriProgression),
+                    YamaNashiProgression = new Dictionary<int, string>(src.YamaNashiProgression),
+                    BomberWeeks = new List<int>(src.BomberWeeks)
+                };
+            }
+            txtStatus.Text = "現在の窓の進行設定を全窓にコピーしました";
+        }
+
+        private void BuildBomberCheckBoxes()
+        {
+            for (int w = 1; w <= 16; w++)
+            {
+                var chk = new CheckBox
+                {
+                    Content = WeekHelper.ToLabel(w),
+                    IsChecked = bomberWeeks.Contains(w),
+                    Margin = new Thickness(5, 2, 5, 2),
+                    Tag = w
+                };
+                bomberCheckBoxes[w] = chk;
+                bomberCheckContainer.Children.Add(chk);
+            }
+        }
+
+        private void BuildProgressionGrid(StackPanel container, Dictionary<int, ComboBox> comboBoxes, Dictionary<int, int> defaults)
+        {
+            var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 2 };
+            for (int w = 1; w <= 16; w++)
+            {
+                var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(2) };
+                sp.Children.Add(new TextBlock { Text = $"{WeekHelper.ToLabel(w)}:", Width = 30, VerticalAlignment = VerticalAlignment.Center });
+                var cmb = new ComboBox { Width = 120, Tag = w };
+                for (int i = 0; i < AuditionTypes.Length; i++)
+                {
+                    cmb.Items.Add(new ComboBoxItem { Content = AuditionTypes[i], Tag = AuditionTags[i] });
+                }
+                int defaultIdx = defaults.TryGetValue(w, out int idx) ? idx : 0;
+                cmb.SelectedIndex = defaultIdx;
+                comboBoxes[w] = cmb;
+                sp.Children.Add(cmb);
+                grid.Children.Add(sp);
+            }
+            container.Children.Add(grid);
         }
 
         // コントロール名からComboBoxの値を取得
@@ -770,14 +1241,6 @@ namespace audition_nagurisaki
             catch (Exception ex)
             {
                 txtStatus.Text = $"エラー: {ex.Message}";
-            }
-        }
-
-        private void MouseTrackingTimer_Tick(object? sender, EventArgs e)
-        {
-            if (GetCursorPos(out POINT point))
-            {
-                txtMousePosition.Text = $"X={point.X}, Y={point.Y}";
             }
         }
 
@@ -882,7 +1345,10 @@ namespace audition_nagurisaki
                 overlayWindow.Show();
                 
                 // 現在の週情報とフォントサイズを設定
+                var activeBomber = new HashSet<int>(GetWindowProgression(activeWindow).BomberWeeks);
+                overlayWindow.SetBomberWeeks(activeBomber);
                 overlayWindow.SetWeekInfo(currentWeek);
+                overlayWindow.SetYamaMode(isYamaAri);
                 if (int.TryParse(txtFontSize.Text, out int fontSize) && fontSize > 0)
                 {
                     overlayWindow.SetFontSize(fontSize);
@@ -914,7 +1380,6 @@ namespace audition_nagurisaki
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             detectionTimer.Stop();
-            mouseTrackingTimer.Stop();
             keyboardHook?.Stop();
             keyboardHook?.Dispose();
             
@@ -983,14 +1448,48 @@ namespace audition_nagurisaki
                     Window3_X2 = int.Parse(txtX32.Text),
                     Window3_Y2 = int.Parse(txtY32.Text),
 
+                    WindowSingle_X1 = int.Parse(txtXS1.Text),
+                    WindowSingle_Y1 = int.Parse(txtYS1.Text),
+                    WindowSingle_X2 = int.Parse(txtXS2.Text),
+                    WindowSingle_Y2 = int.Parse(txtYS2.Text),
+
+                    Window3W1_X1 = int.Parse(txtX3W11.Text),
+                    Window3W1_Y1 = int.Parse(txtY3W11.Text),
+                    Window3W1_X2 = int.Parse(txtX3W12.Text),
+                    Window3W1_Y2 = int.Parse(txtY3W12.Text),
+
+                    Window3W2_X1 = int.Parse(txtX3W21.Text),
+                    Window3W2_Y1 = int.Parse(txtY3W21.Text),
+                    Window3W2_X2 = int.Parse(txtX3W22.Text),
+                    Window3W2_Y2 = int.Parse(txtY3W22.Text),
+
+                    Window3W3_X1 = int.Parse(txtX3W31.Text),
+                    Window3W3_Y1 = int.Parse(txtY3W31.Text),
+                    Window3W3_X2 = int.Parse(txtX3W32.Text),
+                    Window3W3_Y2 = int.Parse(txtY3W32.Text),
+
                     CurrentWeek = currentWeek,
                     FontSize = int.TryParse(txtFontSize.Text, out int fontSize) ? fontSize : 200,
                     
                     JudgeKey = txtJudgeKey.Text,
                     MoveToWindow1Key = txtMoveToWindow1Key.Text,
                     MoveToWindow2Key = txtMoveToWindow2Key.Text,
-                    MoveToWindow3Key = txtMoveToWindow3Key.Text
+                    MoveToWindow3Key = txtMoveToWindow3Key.Text,
+                    MoveToWindowSingleKey = txtMoveToWindowSKey.Text,
+                    MoveToWindow3W1Key = txtMoveToWindow3W1Key.Text,
+                    MoveToWindow3W2Key = txtMoveToWindow3W2Key.Text,
+                    MoveToWindow3W3Key = txtMoveToWindow3W3Key.Text,
+                    
+                    // 定点クリック設定
+                    AutoClickEnabled = chkAutoClickEnabled.IsChecked == true,
+                    CoordRegKey = txtCoordRegKey.Text
                 };
+                
+                // 定点クリック座標を保存
+                SavePresetSettings(settings);
+
+                // 各タブのルール設定を保存
+                SaveTabRuleSettings(settings);
 
                 settings.SaveToFile(SettingsFilePath);
                 string fullPath = System.IO.Path.GetFullPath(SettingsFilePath);
@@ -1000,6 +1499,137 @@ namespace audition_nagurisaki
             {
                 txtStatus.Text = $"保存エラー: {ex.Message}";
             }
+        }
+        
+        private void SavePresetSettings(CoordinateSettings settings)
+        {
+            settings.ClickPresets = clickPresets.ToList();
+            settings.ClickPatterns = clickPatterns.ToList();
+            settings.IsYamaAri = isYamaAri;
+            settings.YamaToggleKey = txtYamaToggleKey.Text;
+
+            // 現在表示中の窓の設定を保存してからまとめて書き出す
+            SaveCurrentProgressionToDict();
+            settings.WindowProgressions = new Dictionary<int, WindowProgressionSettings>(windowProgressions);
+
+            // 旧互換用にも書き出し
+            var defaultProg = GetWindowProgression(1);
+            settings.BomberWeeks = new List<int>(defaultProg.BomberWeeks);
+            settings.YamaAriProgression = new Dictionary<int, string>(defaultProg.YamaAriProgression);
+            settings.YamaNashiProgression = new Dictionary<int, string>(defaultProg.YamaNashiProgression);
+        }
+
+        private Dictionary<int, string> GetProgressionFromComboBoxes(Dictionary<int, ComboBox> comboBoxes)
+        {
+            var result = new Dictionary<int, string>();
+            foreach (var kvp in comboBoxes)
+            {
+                if (kvp.Value.SelectedItem is ComboBoxItem item)
+                    result[kvp.Key] = item.Tag?.ToString() ?? "Spotlight";
+            }
+            return result;
+        }
+
+        private void SaveTabRuleSettings(CoordinateSettings settings)
+        {
+            // EreeBest
+            settings.EreeBestRules.Rule1_Display1 = GetComboBoxValue(cmbEreeBestRule1Display1);
+            settings.EreeBestRules.Rule1_Display2 = GetComboBoxValue(cmbEreeBestRule1Display2);
+            settings.EreeBestRules.Rule2_Display1 = GetComboBoxValue(cmbEreeBestRule2Display1);
+            settings.EreeBestRules.Rule2_Display2 = GetComboBoxValue(cmbEreeBestRule2Display2);
+            settings.EreeBestRules.Rule3_Display1 = GetComboBoxValue(cmbEreeBestRule3Display1);
+            settings.EreeBestRules.Rule3_Display2 = GetComboBoxValue(cmbEreeBestRule3Display2);
+            settings.EreeBestRules.Rule4_Display1 = GetComboBoxValue(cmbEreeBestRule4Display1);
+            settings.EreeBestRules.Rule4_Display2 = GetComboBoxValue(cmbEreeBestRule4Display2);
+            settings.EreeBestRules.Rule5_Display1 = GetComboBoxValue(cmbEreeBestRule5Display1);
+            settings.EreeBestRules.Rule5_Display2 = GetComboBoxValue(cmbEreeBestRule5Display2);
+            settings.EreeBestRules.Rule6_Display1 = GetComboBoxValue(cmbEreeBestRule6Display1);
+            settings.EreeBestRules.Rule6_Display2 = GetComboBoxValue(cmbEreeBestRule6Display2);
+
+            // Spotlight
+            settings.SpotlightRules.Rule1_Display1 = GetComboBoxValue(cmbSpotlightRule1Display1);
+            settings.SpotlightRules.Rule1_Display2 = GetComboBoxValue(cmbSpotlightRule1Display2);
+            settings.SpotlightRules.Rule2_Display1 = GetComboBoxValue(cmbSpotlightRule2Display1);
+            settings.SpotlightRules.Rule2_Display2 = GetComboBoxValue(cmbSpotlightRule2Display2);
+            settings.SpotlightRules.Rule3_Display1 = GetComboBoxValue(cmbSpotlightRule3Display1);
+            settings.SpotlightRules.Rule3_Display2 = GetComboBoxValue(cmbSpotlightRule3Display2);
+            settings.SpotlightRules.Rule4_Display1 = GetComboBoxValue(cmbSpotlightRule4Display1);
+            settings.SpotlightRules.Rule4_Display2 = GetComboBoxValue(cmbSpotlightRule4Display2);
+            settings.SpotlightRules.Rule5_Display1 = GetComboBoxValue(cmbSpotlightRule5Display1);
+            settings.SpotlightRules.Rule5_Display2 = GetComboBoxValue(cmbSpotlightRule5Display2);
+            settings.SpotlightRules.Rule6_Display1 = GetComboBoxValue(cmbSpotlightRule6Display1);
+            settings.SpotlightRules.Rule6_Display2 = GetComboBoxValue(cmbSpotlightRule6Display2);
+            
+            // Odotte
+            settings.OdotteRules.Rule1_Display1 = GetComboBoxValue(cmbOdotteRule1Display1);
+            settings.OdotteRules.Rule1_Display2 = GetComboBoxValue(cmbOdotteRule1Display2);
+            settings.OdotteRules.Rule2_Display1 = GetComboBoxValue(cmbOdotteRule2Display1);
+            settings.OdotteRules.Rule2_Display2 = GetComboBoxValue(cmbOdotteRule2Display2);
+            settings.OdotteRules.Rule3_Display1 = GetComboBoxValue(cmbOdotteRule3Display1);
+            settings.OdotteRules.Rule3_Display2 = GetComboBoxValue(cmbOdotteRule3Display2);
+            settings.OdotteRules.Rule4_Display1 = GetComboBoxValue(cmbOdotteRule4Display1);
+            settings.OdotteRules.Rule4_Display2 = GetComboBoxValue(cmbOdotteRule4Display2);
+            settings.OdotteRules.Rule5_Display1 = GetComboBoxValue(cmbOdotteRule5Display1);
+            settings.OdotteRules.Rule5_Display2 = GetComboBoxValue(cmbOdotteRule5Display2);
+            settings.OdotteRules.Rule6_Display1 = GetComboBoxValue(cmbOdotteRule6Display1);
+            settings.OdotteRules.Rule6_Display2 = GetComboBoxValue(cmbOdotteRule6Display2);
+            
+            // Legend
+            settings.LegendRules.Rule1_Display1 = GetComboBoxValue(cmbLegendRule1Display1);
+            settings.LegendRules.Rule1_Display2 = GetComboBoxValue(cmbLegendRule1Display2);
+            settings.LegendRules.Rule2_Display1 = GetComboBoxValue(cmbLegendRule2Display1);
+            settings.LegendRules.Rule2_Display2 = GetComboBoxValue(cmbLegendRule2Display2);
+            settings.LegendRules.Rule3_Display1 = GetComboBoxValue(cmbLegendRule3Display1);
+            settings.LegendRules.Rule3_Display2 = GetComboBoxValue(cmbLegendRule3Display2);
+            settings.LegendRules.Rule4_Display1 = GetComboBoxValue(cmbLegendRule4Display1);
+            settings.LegendRules.Rule4_Display2 = GetComboBoxValue(cmbLegendRule4Display2);
+            settings.LegendRules.Rule5_Display1 = GetComboBoxValue(cmbLegendRule5Display1);
+            settings.LegendRules.Rule5_Display2 = GetComboBoxValue(cmbLegendRule5Display2);
+            settings.LegendRules.Rule6_Display1 = GetComboBoxValue(cmbLegendRule6Display1);
+            settings.LegendRules.Rule6_Display2 = GetComboBoxValue(cmbLegendRule6Display2);
+            
+            // Nanasai
+            settings.NanasaiRules.Rule1_Display1 = GetComboBoxValue(cmbNanasaiRule1Display1);
+            settings.NanasaiRules.Rule1_Display2 = GetComboBoxValue(cmbNanasaiRule1Display2);
+            settings.NanasaiRules.Rule2_Display1 = GetComboBoxValue(cmbNanasaiRule2Display1);
+            settings.NanasaiRules.Rule2_Display2 = GetComboBoxValue(cmbNanasaiRule2Display2);
+            settings.NanasaiRules.Rule3_Display1 = GetComboBoxValue(cmbNanasaiRule3Display1);
+            settings.NanasaiRules.Rule3_Display2 = GetComboBoxValue(cmbNanasaiRule3Display2);
+            settings.NanasaiRules.Rule4_Display1 = GetComboBoxValue(cmbNanasaiRule4Display1);
+            settings.NanasaiRules.Rule4_Display2 = GetComboBoxValue(cmbNanasaiRule4Display2);
+            settings.NanasaiRules.Rule5_Display1 = GetComboBoxValue(cmbNanasaiRule5Display1);
+            settings.NanasaiRules.Rule5_Display2 = GetComboBoxValue(cmbNanasaiRule5Display2);
+            settings.NanasaiRules.Rule6_Display1 = GetComboBoxValue(cmbNanasaiRule6Display1);
+            settings.NanasaiRules.Rule6_Display2 = GetComboBoxValue(cmbNanasaiRule6Display2);
+            
+            // Utahime
+            settings.UtahimeRules.Rule1_Display1 = GetComboBoxValue(cmbUtahimeRule1Display1);
+            settings.UtahimeRules.Rule1_Display2 = GetComboBoxValue(cmbUtahimeRule1Display2);
+            settings.UtahimeRules.Rule2_Display1 = GetComboBoxValue(cmbUtahimeRule2Display1);
+            settings.UtahimeRules.Rule2_Display2 = GetComboBoxValue(cmbUtahimeRule2Display2);
+            settings.UtahimeRules.Rule3_Display1 = GetComboBoxValue(cmbUtahimeRule3Display1);
+            settings.UtahimeRules.Rule3_Display2 = GetComboBoxValue(cmbUtahimeRule3Display2);
+            settings.UtahimeRules.Rule4_Display1 = GetComboBoxValue(cmbUtahimeRule4Display1);
+            settings.UtahimeRules.Rule4_Display2 = GetComboBoxValue(cmbUtahimeRule4Display2);
+            settings.UtahimeRules.Rule5_Display1 = GetComboBoxValue(cmbUtahimeRule5Display1);
+            settings.UtahimeRules.Rule5_Display2 = GetComboBoxValue(cmbUtahimeRule5Display2);
+            settings.UtahimeRules.Rule6_Display1 = GetComboBoxValue(cmbUtahimeRule6Display1);
+            settings.UtahimeRules.Rule6_Display2 = GetComboBoxValue(cmbUtahimeRule6Display2);
+        }
+        
+        private string GetComboBoxValue(ComboBox? comboBox)
+        {
+            if (comboBox == null)
+                return "";
+            
+            // SelectedIndexを使用して値を取得（タブが表示されていなくても動作する）
+            return comboBox.SelectedIndex switch
+            {
+                0 => "Vo",
+                1 => "Da",
+                2 => "Vi",
+                _ => ""
+            };
         }
 
         private void BtnLoadSettings_Click(object sender, RoutedEventArgs e)
@@ -1030,6 +1660,26 @@ namespace audition_nagurisaki
                 txtX32.Text = settings.Window3_X2.ToString();
                 txtY32.Text = settings.Window3_Y2.ToString();
 
+                txtXS1.Text = settings.WindowSingle_X1.ToString();
+                txtYS1.Text = settings.WindowSingle_Y1.ToString();
+                txtXS2.Text = settings.WindowSingle_X2.ToString();
+                txtYS2.Text = settings.WindowSingle_Y2.ToString();
+
+                txtX3W11.Text = settings.Window3W1_X1.ToString();
+                txtY3W11.Text = settings.Window3W1_Y1.ToString();
+                txtX3W12.Text = settings.Window3W1_X2.ToString();
+                txtY3W12.Text = settings.Window3W1_Y2.ToString();
+
+                txtX3W21.Text = settings.Window3W2_X1.ToString();
+                txtY3W21.Text = settings.Window3W2_Y1.ToString();
+                txtX3W22.Text = settings.Window3W2_X2.ToString();
+                txtY3W22.Text = settings.Window3W2_Y2.ToString();
+
+                txtX3W31.Text = settings.Window3W3_X1.ToString();
+                txtY3W31.Text = settings.Window3W3_Y1.ToString();
+                txtX3W32.Text = settings.Window3W3_X2.ToString();
+                txtY3W32.Text = settings.Window3W3_Y2.ToString();
+
                 currentWeek = settings.CurrentWeek;
                 txtWeek.Text = ConvertWeekToText(currentWeek);
                 txtFontSize.Text = settings.FontSize.ToString();
@@ -1038,6 +1688,18 @@ namespace audition_nagurisaki
                 txtMoveToWindow1Key.Text = settings.MoveToWindow1Key ?? "Z";
                 txtMoveToWindow2Key.Text = settings.MoveToWindow2Key ?? "X";
                 txtMoveToWindow3Key.Text = settings.MoveToWindow3Key ?? "C";
+                txtMoveToWindowSKey.Text = settings.MoveToWindowSingleKey ?? "";
+                txtMoveToWindow3W1Key.Text = settings.MoveToWindow3W1Key ?? "";
+                txtMoveToWindow3W2Key.Text = settings.MoveToWindow3W2Key ?? "";
+                txtMoveToWindow3W3Key.Text = settings.MoveToWindow3W3Key ?? "";
+                
+                // 定点クリック設定を読み込み
+                chkAutoClickEnabled.IsChecked = settings.AutoClickEnabled;
+                txtCoordRegKey.Text = settings.CoordRegKey ?? "R";
+                LoadPresetSettings(settings);
+
+                // 各タブのルール設定を読み込み
+                LoadTabRuleSettings(settings);
             }
             catch
             {
@@ -1045,188 +1707,265 @@ namespace audition_nagurisaki
             }
         }
         
-        private void SetComboBoxSelection(System.Windows.Controls.ComboBox comboBox, string value)
+        private void LoadPresetSettings(CoordinateSettings settings)
         {
-            foreach (ComboBoxItem item in comboBox.Items)
+            clickPresets.Clear();
+            if (settings.ClickPresets != null)
             {
-                if (item.Content?.ToString() == value)
+                for (int i = 0; i < settings.ClickPresets.Count; i++)
                 {
-                    comboBox.SelectedItem = item;
-                    break;
+                    var p = settings.ClickPresets[i];
+                    if (string.IsNullOrEmpty(p.Name))
+                        p.Name = $"定点{i + 1}";
+                    clickPresets.Add(p);
+                }
+            }
+
+            clickPatterns.Clear();
+            if (settings.ClickPatterns != null)
+            {
+                foreach (var p in settings.ClickPatterns)
+                    clickPatterns.Add(p);
+            }
+
+            isYamaAri = settings.IsYamaAri;
+            txtYamaToggleKey.Text = settings.YamaToggleKey ?? "";
+            UpdateYamaModeDisplay();
+
+            // 窓別進行設定読み込み
+            windowProgressions.Clear();
+            if (settings.WindowProgressions != null && settings.WindowProgressions.Count > 0)
+            {
+                foreach (var kvp in settings.WindowProgressions)
+                    windowProgressions[kvp.Key] = kvp.Value;
+            }
+            else
+            {
+                // 旧形式からの互換読み込み（全窓に同じ設定をコピー）
+                var legacy = new WindowProgressionSettings
+                {
+                    BomberWeeks = settings.BomberWeeks ?? new List<int> { 8, 13 },
+                    YamaAriProgression = settings.YamaAriProgression ?? new(),
+                    YamaNashiProgression = settings.YamaNashiProgression ?? new()
+                };
+                foreach (int wn in new[] { 0, 1, 2, 3, 4, 5, 6 })
+                {
+                    windowProgressions[wn] = new WindowProgressionSettings
+                    {
+                        BomberWeeks = new List<int>(legacy.BomberWeeks),
+                        YamaAriProgression = new Dictionary<int, string>(legacy.YamaAriProgression),
+                        YamaNashiProgression = new Dictionary<int, string>(legacy.YamaNashiProgression)
+                    };
+                }
+            }
+
+            // 全窓のデフォルト設定を保証
+            foreach (int wn in new[] { 0, 1, 2, 3, 4, 5, 6 })
+            {
+                if (!windowProgressions.ContainsKey(wn))
+                    windowProgressions[wn] = new WindowProgressionSettings();
+            }
+
+            // UIを現在の窓で再構築
+            currentProgressionWindow = 1;
+            RebuildProgressionUI();
+        }
+
+        private void LoadProgressionComboBoxes(Dictionary<int, ComboBox> comboBoxes, Dictionary<int, string>? progression)
+        {
+            if (progression == null) return;
+            foreach (var kvp in progression)
+            {
+                if (comboBoxes.TryGetValue(kvp.Key, out var cmb))
+                {
+                    for (int i = 0; i < cmb.Items.Count; i++)
+                    {
+                        if (cmb.Items[i] is ComboBoxItem item && item.Tag?.ToString() == kvp.Value)
+                        {
+                            cmb.SelectedIndex = i;
+                            break;
+                        }
+                    }
                 }
             }
         }
-        
-        private string ConvertWeekToText(int week)
+
+        private void LoadTabRuleSettings(CoordinateSettings settings)
         {
-            return week switch
+            // EreeBest
+            if (settings.EreeBestRules != null)
             {
-                1 => "4-1",
-                2 => "3-8",
-                3 => "3-7",
-                4 => "3-6",
-                5 => "3-5",
-                6 => "3-4",
-                7 => "3-3",
-                8 => "3-2",
-                9 => "3-1",
-                10 => "4-8",
-                11 => "4-7",
-                12 => "4-6",
-                13 => "4-5",
-                14 => "4-4",
-                15 => "4-3",
-                16 => "4-2",
-                _ => "4-1"
-            };
+                SetComboBoxSelection(cmbEreeBestRule1Display1, settings.EreeBestRules.Rule1_Display1);
+                SetComboBoxSelection(cmbEreeBestRule1Display2, settings.EreeBestRules.Rule1_Display2);
+                SetComboBoxSelection(cmbEreeBestRule2Display1, settings.EreeBestRules.Rule2_Display1);
+                SetComboBoxSelection(cmbEreeBestRule2Display2, settings.EreeBestRules.Rule2_Display2);
+                SetComboBoxSelection(cmbEreeBestRule3Display1, settings.EreeBestRules.Rule3_Display1);
+                SetComboBoxSelection(cmbEreeBestRule3Display2, settings.EreeBestRules.Rule3_Display2);
+                SetComboBoxSelection(cmbEreeBestRule4Display1, settings.EreeBestRules.Rule4_Display1);
+                SetComboBoxSelection(cmbEreeBestRule4Display2, settings.EreeBestRules.Rule4_Display2);
+                SetComboBoxSelection(cmbEreeBestRule5Display1, settings.EreeBestRules.Rule5_Display1);
+                SetComboBoxSelection(cmbEreeBestRule5Display2, settings.EreeBestRules.Rule5_Display2);
+                SetComboBoxSelection(cmbEreeBestRule6Display1, settings.EreeBestRules.Rule6_Display1);
+                SetComboBoxSelection(cmbEreeBestRule6Display2, settings.EreeBestRules.Rule6_Display2);
+            }
+
+            // Spotlight
+            if (settings.SpotlightRules != null)
+            {
+                SetComboBoxSelection(cmbSpotlightRule1Display1, settings.SpotlightRules.Rule1_Display1);
+                SetComboBoxSelection(cmbSpotlightRule1Display2, settings.SpotlightRules.Rule1_Display2);
+                SetComboBoxSelection(cmbSpotlightRule2Display1, settings.SpotlightRules.Rule2_Display1);
+                SetComboBoxSelection(cmbSpotlightRule2Display2, settings.SpotlightRules.Rule2_Display2);
+                SetComboBoxSelection(cmbSpotlightRule3Display1, settings.SpotlightRules.Rule3_Display1);
+                SetComboBoxSelection(cmbSpotlightRule3Display2, settings.SpotlightRules.Rule3_Display2);
+                SetComboBoxSelection(cmbSpotlightRule4Display1, settings.SpotlightRules.Rule4_Display1);
+                SetComboBoxSelection(cmbSpotlightRule4Display2, settings.SpotlightRules.Rule4_Display2);
+                SetComboBoxSelection(cmbSpotlightRule5Display1, settings.SpotlightRules.Rule5_Display1);
+                SetComboBoxSelection(cmbSpotlightRule5Display2, settings.SpotlightRules.Rule5_Display2);
+                SetComboBoxSelection(cmbSpotlightRule6Display1, settings.SpotlightRules.Rule6_Display1);
+                SetComboBoxSelection(cmbSpotlightRule6Display2, settings.SpotlightRules.Rule6_Display2);
+            }
+            
+            // Odotte
+            if (settings.OdotteRules != null)
+            {
+                SetComboBoxSelection(cmbOdotteRule1Display1, settings.OdotteRules.Rule1_Display1);
+                SetComboBoxSelection(cmbOdotteRule1Display2, settings.OdotteRules.Rule1_Display2);
+                SetComboBoxSelection(cmbOdotteRule2Display1, settings.OdotteRules.Rule2_Display1);
+                SetComboBoxSelection(cmbOdotteRule2Display2, settings.OdotteRules.Rule2_Display2);
+                SetComboBoxSelection(cmbOdotteRule3Display1, settings.OdotteRules.Rule3_Display1);
+                SetComboBoxSelection(cmbOdotteRule3Display2, settings.OdotteRules.Rule3_Display2);
+                SetComboBoxSelection(cmbOdotteRule4Display1, settings.OdotteRules.Rule4_Display1);
+                SetComboBoxSelection(cmbOdotteRule4Display2, settings.OdotteRules.Rule4_Display2);
+                SetComboBoxSelection(cmbOdotteRule5Display1, settings.OdotteRules.Rule5_Display1);
+                SetComboBoxSelection(cmbOdotteRule5Display2, settings.OdotteRules.Rule5_Display2);
+                SetComboBoxSelection(cmbOdotteRule6Display1, settings.OdotteRules.Rule6_Display1);
+                SetComboBoxSelection(cmbOdotteRule6Display2, settings.OdotteRules.Rule6_Display2);
+            }
+            
+            // Legend
+            if (settings.LegendRules != null)
+            {
+                SetComboBoxSelection(cmbLegendRule1Display1, settings.LegendRules.Rule1_Display1);
+                SetComboBoxSelection(cmbLegendRule1Display2, settings.LegendRules.Rule1_Display2);
+                SetComboBoxSelection(cmbLegendRule2Display1, settings.LegendRules.Rule2_Display1);
+                SetComboBoxSelection(cmbLegendRule2Display2, settings.LegendRules.Rule2_Display2);
+                SetComboBoxSelection(cmbLegendRule3Display1, settings.LegendRules.Rule3_Display1);
+                SetComboBoxSelection(cmbLegendRule3Display2, settings.LegendRules.Rule3_Display2);
+                SetComboBoxSelection(cmbLegendRule4Display1, settings.LegendRules.Rule4_Display1);
+                SetComboBoxSelection(cmbLegendRule4Display2, settings.LegendRules.Rule4_Display2);
+                SetComboBoxSelection(cmbLegendRule5Display1, settings.LegendRules.Rule5_Display1);
+                SetComboBoxSelection(cmbLegendRule5Display2, settings.LegendRules.Rule5_Display2);
+                SetComboBoxSelection(cmbLegendRule6Display1, settings.LegendRules.Rule6_Display1);
+                SetComboBoxSelection(cmbLegendRule6Display2, settings.LegendRules.Rule6_Display2);
+            }
+            
+            // Nanasai
+            if (settings.NanasaiRules != null)
+            {
+                SetComboBoxSelection(cmbNanasaiRule1Display1, settings.NanasaiRules.Rule1_Display1);
+                SetComboBoxSelection(cmbNanasaiRule1Display2, settings.NanasaiRules.Rule1_Display2);
+                SetComboBoxSelection(cmbNanasaiRule2Display1, settings.NanasaiRules.Rule2_Display1);
+                SetComboBoxSelection(cmbNanasaiRule2Display2, settings.NanasaiRules.Rule2_Display2);
+                SetComboBoxSelection(cmbNanasaiRule3Display1, settings.NanasaiRules.Rule3_Display1);
+                SetComboBoxSelection(cmbNanasaiRule3Display2, settings.NanasaiRules.Rule3_Display2);
+                SetComboBoxSelection(cmbNanasaiRule4Display1, settings.NanasaiRules.Rule4_Display1);
+                SetComboBoxSelection(cmbNanasaiRule4Display2, settings.NanasaiRules.Rule4_Display2);
+                SetComboBoxSelection(cmbNanasaiRule5Display1, settings.NanasaiRules.Rule5_Display1);
+                SetComboBoxSelection(cmbNanasaiRule5Display2, settings.NanasaiRules.Rule5_Display2);
+                SetComboBoxSelection(cmbNanasaiRule6Display1, settings.NanasaiRules.Rule6_Display1);
+                SetComboBoxSelection(cmbNanasaiRule6Display2, settings.NanasaiRules.Rule6_Display2);
+            }
+            
+            // Utahime
+            if (settings.UtahimeRules != null)
+            {
+                SetComboBoxSelection(cmbUtahimeRule1Display1, settings.UtahimeRules.Rule1_Display1);
+                SetComboBoxSelection(cmbUtahimeRule1Display2, settings.UtahimeRules.Rule1_Display2);
+                SetComboBoxSelection(cmbUtahimeRule2Display1, settings.UtahimeRules.Rule2_Display1);
+                SetComboBoxSelection(cmbUtahimeRule2Display2, settings.UtahimeRules.Rule2_Display2);
+                SetComboBoxSelection(cmbUtahimeRule3Display1, settings.UtahimeRules.Rule3_Display1);
+                SetComboBoxSelection(cmbUtahimeRule3Display2, settings.UtahimeRules.Rule3_Display2);
+                SetComboBoxSelection(cmbUtahimeRule4Display1, settings.UtahimeRules.Rule4_Display1);
+                SetComboBoxSelection(cmbUtahimeRule4Display2, settings.UtahimeRules.Rule4_Display2);
+                SetComboBoxSelection(cmbUtahimeRule5Display1, settings.UtahimeRules.Rule5_Display1);
+                SetComboBoxSelection(cmbUtahimeRule5Display2, settings.UtahimeRules.Rule5_Display2);
+                SetComboBoxSelection(cmbUtahimeRule6Display1, settings.UtahimeRules.Rule6_Display1);
+                SetComboBoxSelection(cmbUtahimeRule6Display2, settings.UtahimeRules.Rule6_Display2);
+            }
         }
         
-        private async Task ExecuteFixedClicks(int windowNumber)
+        private void SetComboBoxSelection(System.Windows.Controls.ComboBox comboBox, string value)
         {
-            // 定点クリックが無効の場合は何もしない
+            if (comboBox == null || string.IsNullOrEmpty(value))
+                return;
+            
+            // SelectedIndexを使用して設定（タブが表示されていなくても動作する）
+            int index = value switch
+            {
+                "Vo" => 0,
+                "Da" => 1,
+                "Vi" => 2,
+                _ => -1
+            };
+            
+            if (index >= 0 && index < comboBox.Items.Count)
+            {
+                comboBox.SelectedIndex = index;
+            }
+        }
+        
+        private string ConvertWeekToText(int week) => WeekHelper.ToLabel(week);
+        
+        private async Task ExecuteFixedClicks(ClickPattern pattern)
+        {
             if (chkAutoClickEnabled == null || chkAutoClickEnabled.IsChecked != true)
                 return;
 
-            var clickPoints = new List<(int x, int y, int delay)>();
-            
-            // 窓番号に応じたチェックボックスとテキストボックスを取得
-            CheckBox?[] checkBoxes;
-            TextBox?[] xBoxes;
-            TextBox?[] yBoxes;
-            TextBox?[] delayBoxes;
-            
-            switch (windowNumber)
+            foreach (var name in pattern.PresetNames)
             {
-                case 1:
-                    checkBoxes = new[] { chkW1Click1, chkW1Click2, chkW1Click3, chkW1Click4, chkW1Click5, chkW1Click6, chkW1Click7, chkW1Click8, chkW1Click9 };
-                    xBoxes = new[] { txtW1X1, txtW1X2, txtW1X3, txtW1X4, txtW1X5, txtW1X6, txtW1X7, txtW1X8, txtW1X9 };
-                    yBoxes = new[] { txtW1Y1, txtW1Y2, txtW1Y3, txtW1Y4, txtW1Y5, txtW1Y6, txtW1Y7, txtW1Y8, txtW1Y9 };
-                    delayBoxes = new[] { txtW1D1, txtW1D2, txtW1D3, txtW1D4, txtW1D5, txtW1D6, txtW1D7, txtW1D8, txtW1D9 };
-                    break;
-                case 2:
-                    checkBoxes = new[] { chkW2Click1, chkW2Click2, chkW2Click3, chkW2Click4, chkW2Click5, chkW2Click6, chkW2Click7, chkW2Click8, chkW2Click9 };
-                    xBoxes = new[] { txtW2X1, txtW2X2, txtW2X3, txtW2X4, txtW2X5, txtW2X6, txtW2X7, txtW2X8, txtW2X9 };
-                    yBoxes = new[] { txtW2Y1, txtW2Y2, txtW2Y3, txtW2Y4, txtW2Y5, txtW2Y6, txtW2Y7, txtW2Y8, txtW2Y9 };
-                    delayBoxes = new[] { txtW2D1, txtW2D2, txtW2D3, txtW2D4, txtW2D5, txtW2D6, txtW2D7, txtW2D8, txtW2D9 };
-                    break;
-                case 3:
-                    checkBoxes = new[] { chkW3Click1, chkW3Click2, chkW3Click3, chkW3Click4, chkW3Click5, chkW3Click6, chkW3Click7, chkW3Click8, chkW3Click9 };
-                    xBoxes = new[] { txtW3X1, txtW3X2, txtW3X3, txtW3X4, txtW3X5, txtW3X6, txtW3X7, txtW3X8, txtW3X9 };
-                    yBoxes = new[] { txtW3Y1, txtW3Y2, txtW3Y3, txtW3Y4, txtW3Y5, txtW3Y6, txtW3Y7, txtW3Y8, txtW3Y9 };
-                    delayBoxes = new[] { txtW3D1, txtW3D2, txtW3D3, txtW3D4, txtW3D5, txtW3D6, txtW3D7, txtW3D8, txtW3D9 };
-                    break;
-                default:
-                    return;
-            }
-            
-            // 有効なクリック座標を収集（1から9まで順番に）
-            for (int i = 0; i < 9; i++)
-            {
-                if (checkBoxes[i]?.IsChecked == true &&
-                    int.TryParse(xBoxes[i]?.Text, out int x) &&
-                    int.TryParse(yBoxes[i]?.Text, out int y) &&
-                    int.TryParse(delayBoxes[i]?.Text, out int delay))
+                var preset = clickPresets.FirstOrDefault(p => p.Name == name);
+                if (preset != null)
                 {
-                    clickPoints.Add((x, y, delay));
+                    if (preset.Delay > 0)
+                        await Task.Delay(preset.Delay);
+                    PerformClick(preset.X, preset.Y);
                 }
-            }
-
-            // 各ポイントを順番にクリック
-            foreach (var (x, y, delay) in clickPoints)
-            {
-                if (delay > 0)
-                {
-                    await Task.Delay(delay);
-                }
-                
-                PerformClick(x, y);
             }
         }
-        
+
         private void PerformClick(int x, int y)
         {
-            // 指定座標に移動してクリック
             SetCursorPos(x, y);
             mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
             mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
         }
-        
+
+        // パターン編集ウィンドウを開く
+        private void BtnOpenPatternEditor_Click(object sender, RoutedEventArgs e)
+        {
+            var editor = new PatternEditorWindow(clickPresets, clickPatterns);
+            editor.Owner = this;
+            editor.ShowDialog();
+        }
+
         private void RegisterFixedClickCoordinate()
         {
-            if (!activeFixedClickTarget.HasValue)
+            if (dgPresets.SelectedItem is not ClickPreset preset)
             {
                 txtStatus.Text = "定点クリック登録: アクティブな項目がありません";
                 return;
             }
-            
+
             if (!GetCursorPos(out POINT point))
                 return;
-            
-            var (window, index) = activeFixedClickTarget.Value;
-            
-            // 現在の窓・座標番号に応じてテキストボックスを取得
-            TextBox? xBox = null;
-            TextBox? yBox = null;
-            CheckBox? checkBox = null;
-            
-            switch (window)
-            {
-                case 1:
-                    (xBox, yBox, checkBox) = index switch
-                    {
-                        1 => (txtW1X1, txtW1Y1, chkW1Click1),
-                        2 => (txtW1X2, txtW1Y2, chkW1Click2),
-                        3 => (txtW1X3, txtW1Y3, chkW1Click3),
-                        4 => (txtW1X4, txtW1Y4, chkW1Click4),
-                        5 => (txtW1X5, txtW1Y5, chkW1Click5),
-                        6 => (txtW1X6, txtW1Y6, chkW1Click6),
-                        7 => (txtW1X7, txtW1Y7, chkW1Click7),
-                        8 => (txtW1X8, txtW1Y8, chkW1Click8),
-                        9 => (txtW1X9, txtW1Y9, chkW1Click9),
-                        _ => (null, null, null)
-                    };
-                    break;
-                case 2:
-                    (xBox, yBox, checkBox) = index switch
-                    {
-                        1 => (txtW2X1, txtW2Y1, chkW2Click1),
-                        2 => (txtW2X2, txtW2Y2, chkW2Click2),
-                        3 => (txtW2X3, txtW2Y3, chkW2Click3),
-                        4 => (txtW2X4, txtW2Y4, chkW2Click4),
-                        5 => (txtW2X5, txtW2Y5, chkW2Click5),
-                        6 => (txtW2X6, txtW2Y6, chkW2Click6),
-                        7 => (txtW2X7, txtW2Y7, chkW2Click7),
-                        8 => (txtW2X8, txtW2Y8, chkW2Click8),
-                        9 => (txtW2X9, txtW2Y9, chkW2Click9),
-                        _ => (null, null, null)
-                    };
-                    break;
-                case 3:
-                    (xBox, yBox, checkBox) = index switch
-                    {
-                        1 => (txtW3X1, txtW3Y1, chkW3Click1),
-                        2 => (txtW3X2, txtW3Y2, chkW3Click2),
-                        3 => (txtW3X3, txtW3Y3, chkW3Click3),
-                        4 => (txtW3X4, txtW3Y4, chkW3Click4),
-                        5 => (txtW3X5, txtW3Y5, chkW3Click5),
-                        6 => (txtW3X6, txtW3Y6, chkW3Click6),
-                        7 => (txtW3X7, txtW3Y7, chkW3Click7),
-                        8 => (txtW3X8, txtW3Y8, chkW3Click8),
-                        9 => (txtW3X9, txtW3Y9, chkW3Click9),
-                        _ => (null, null, null)
-                    };
-                    break;
-            }
-            
-            if (xBox != null && yBox != null)
-            {
-                xBox.Text = point.X.ToString();
-                yBox.Text = point.Y.ToString();
-                if (checkBox != null)
-                    checkBox.IsChecked = true;
-                
-                txtStatus.Text = $"定点クリック登録: 窓{window}-{index} X={point.X}, Y={point.Y}";
-            }
+
+            preset.X = point.X;
+            preset.Y = point.Y;
+            txtPresetX.Text = point.X.ToString();
+            txtPresetY.Text = point.Y.ToString();
+            dgPresets.Items.Refresh();
+            txtStatus.Text = $"{preset.Name} 登録: X={point.X}, Y={point.Y}";
         }
     }
 }

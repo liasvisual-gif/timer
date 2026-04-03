@@ -46,45 +46,40 @@ namespace audition_nagurisaki
             }
         }
 
+        private HashSet<int> _bomberWeeks = new() { 8, 13 };
+
         public void SetWeekInfo(int week)
         {
             string weekText = ConvertWeekToText(week);
             txtWeekInfo.Text = weekText;
-            
+
             // 3-3と4-6のテキストを赤色にする
             if (weekText == "3-3" || weekText == "4-6")
             {
-                txtWeekInfo.Foreground = new SolidColorBrush(Colors.Red);
+                txtWeekInfo.Fill = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                txtWeekInfo.Foreground = new SolidColorBrush(Colors.White);
+                txtWeekInfo.Fill = new SolidColorBrush(Colors.White);
+            }
+
+            // ボマー表示
+            if (_bomberWeeks.Contains(week))
+            {
+                txtBomber.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                txtBomber.Visibility = Visibility.Collapsed;
             }
         }
 
-        private string ConvertWeekToText(int week)
+        public void SetBomberWeeks(HashSet<int> weeks)
         {
-            return week switch
-            {
-                1 => "4-1",
-                2 => "3-8",
-                3 => "3-7",
-                4 => "3-6",
-                5 => "3-5",
-                6 => "3-4",
-                7 => "3-3",
-                8 => "3-2",
-                9 => "3-1",
-                10 => "4-8",
-                11 => "4-7",
-                12 => "4-6",
-                13 => "4-5",
-                14 => "4-4",
-                15 => "4-3",
-                16 => "4-2",
-                _ => "4-1"
-            };
+            _bomberWeeks = weeks;
         }
+
+        private string ConvertWeekToText(int week) => WeekHelper.ToLabel(week);
 
         public void UpdateJudgementResult(int window, int coord, string result, Color color)
         {
@@ -143,12 +138,34 @@ namespace audition_nagurisaki
             txtVoWithBg.Visibility = Visibility.Collapsed;
             txtDaWithBg.Visibility = Visibility.Collapsed;
             txtViWithBg.Visibility = Visibility.Collapsed;
+            coloredResultPanel.Visibility = Visibility.Collapsed;
         }
 
         public void ShowResultText(string result)
         {
             HideAll();
 
+            // "Vo→Da"のような形式を解析して色付き表示
+            if (result.Contains("→"))
+            {
+                var parts = result.Split('→');
+                if (parts.Length >= 2)
+                {
+                    string part1 = parts[0].Trim();
+                    string part2 = parts[1].Trim();
+                    
+                    txtResult1.Text = part1;
+                    txtResult1.Fill = GetColorForType(part1);
+                    
+                    txtResult2.Text = part2;
+                    txtResult2.Fill = GetColorForType(part2);
+                    
+                    coloredResultPanel.Visibility = Visibility.Visible;
+                    return;
+                }
+            }
+
+            // 従来の単一表示（フォールバック）
             if (isTransparentMode)
             {
                 if (result.Contains("Vo"))
@@ -186,17 +203,60 @@ namespace audition_nagurisaki
                 }
             }
         }
+        
+        private System.Windows.Media.Brush GetColorForType(string type)
+        {
+            return type switch
+            {
+                "Vo" => new SolidColorBrush(Colors.Red),
+                "Da" => new SolidColorBrush(Colors.Blue),
+                "Vi" => new SolidColorBrush(Colors.Yellow),
+                _ => new SolidColorBrush(Colors.White)
+            };
+        }
 
         public void SetFontSize(int fontSize)
         {
             txtVo.FontSize = fontSize;
             txtDa.FontSize = fontSize;
             txtVi.FontSize = fontSize;
-            
+            txtResult1.FontSize = fontSize;
+            txtResultArrow.FontSize = fontSize;
+            txtResult2.FontSize = fontSize;
+
             int bgFontSize = fontSize / 2;
             txtVoWithBg.FontSize = bgFontSize;
             txtDaWithBg.FontSize = bgFontSize;
             txtViWithBg.FontSize = bgFontSize;
+        }
+
+        public void SetYamaMode(bool isYamaAri)
+        {
+            if (isYamaAri)
+            {
+                txtYamaMode.Text = "山あり";
+                txtYamaMode.Fill = new SolidColorBrush(Colors.LimeGreen);
+            }
+            else
+            {
+                txtYamaMode.Text = "山なし";
+                txtYamaMode.Fill = new SolidColorBrush(Colors.Orange);
+            }
+        }
+        
+        /// <summary>
+        /// チェックされた属性の殴り先を表示
+        /// </summary>
+        public void ShowNagurisakiTargets(List<string> targets)
+        {
+            if (targets == null || targets.Count == 0)
+            {
+                txtNagurisaki.Text = "";
+                return;
+            }
+            
+            // 殴り先をtxtNagurisakiに表示（週情報の横）
+            txtNagurisaki.Text = string.Join(" ", targets);
         }
     }
 }

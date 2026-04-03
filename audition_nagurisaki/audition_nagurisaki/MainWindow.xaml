@@ -14,31 +14,57 @@
         
         <!-- 現在の窓状態表示 -->
         <GroupBox Header="現在の窓" Margin="0,0,0,8" Padding="5">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="アクティブ窓:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <TextBlock x:Name="txtCurrentWindow" Text="窓1" FontWeight="Bold" FontSize="16" Foreground="Blue" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                <TextBlock Text="窓移動キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <TextBlock Text="1:" VerticalAlignment="Center" Margin="0,0,2,0"/>
-                <TextBox x:Name="txtMoveToWindow1Key" Text="Z" Width="30" Margin="0,0,10,0"/>
-                <TextBlock Text="2:" VerticalAlignment="Center" Margin="0,0,2,0"/>
-                <TextBox x:Name="txtMoveToWindow2Key" Text="X" Width="30" Margin="0,0,10,0"/>
-                <TextBlock Text="3:" VerticalAlignment="Center" Margin="0,0,2,0"/>
-                <TextBox x:Name="txtMoveToWindow3Key" Text="C" Width="30"/>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="アクティブ窓:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cmbActiveWindow" Width="100" SelectedIndex="0">
+                        <ComboBoxItem Content="8窓1"/>
+                        <ComboBoxItem Content="8窓2"/>
+                        <ComboBoxItem Content="8窓3"/>
+                        <ComboBoxItem Content="単窓"/>
+                        <ComboBoxItem Content="3窓1"/>
+                        <ComboBoxItem Content="3窓2"/>
+                        <ComboBoxItem Content="3窓3"/>
+                    </ComboBox>
+                    <Button x:Name="btnSwitchWindow" Content="切り替え" Width="60" Height="25" Margin="10,0,0,0" Click="BtnSwitchWindow_Click"/>
+                    <TextBlock x:Name="txtCurrentWindow" Text="8窓1" FontWeight="Bold" FontSize="16" Foreground="Blue" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                    <TextBlock Text="窓移動キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock Text="8窓1:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow1Key" Text="Z" Width="30" Margin="0,0,5,0"/>
+                    <TextBlock Text="8窓2:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow2Key" Text="X" Width="30" Margin="0,0,5,0"/>
+                    <TextBlock Text="8窓3:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow3Key" Text="C" Width="30"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                    <TextBlock Text="" Width="67" VerticalAlignment="Center"/>
+                    <TextBlock Text="単窓:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindowSKey" Text="" Width="30" Margin="0,0,5,0"/>
+                    <TextBlock Text="3窓1:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow3W1Key" Text="" Width="30" Margin="0,0,5,0"/>
+                    <TextBlock Text="3窓2:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow3W2Key" Text="" Width="30" Margin="0,0,5,0"/>
+                    <TextBlock Text="3窓3:" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <TextBox x:Name="txtMoveToWindow3W3Key" Text="" Width="30"/>
+                </StackPanel>
             </StackPanel>
         </GroupBox>
 
-        <TabControl Height="420">
+        <!-- 座標登録キー（統合） -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="座標登録キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBox x:Name="txtCoordRegKey" Text="R" Width="40" Margin="0,0,10,0"/>
+            <TextBlock x:Name="txtCoordRegStatus" Text="(アクティブ: なし)" Foreground="Blue" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <TabControl MinHeight="420">
                     <TabItem x:Name="tabSettings" Header="設定">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="8">
-                                <!-- 登録キー設定 -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="座標登録キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <TextBox x:Name="txtCoordRegKey" Text="R" Width="40" Margin="0,0,15,0"/>
-                                    <TextBlock x:Name="txtCoordRegStatus" Text="(アクティブ: なし)" Foreground="Blue" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                
-                                <GroupBox x:Name="grpWindow1" Header="窓1 識別座標" Margin="0,0,0,8" Padding="5">
+
+                                <GroupBox x:Name="grpWindow1" Header="8窓1 識別座標" Margin="0,0,0,8" Padding="5">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,3">
                                             <RadioButton x:Name="rbCoord11" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
@@ -57,7 +83,7 @@
                                     </StackPanel>
                                 </GroupBox>
 
-                                <GroupBox x:Name="grpWindow2" Header="窓2 識別座標" Margin="0,0,0,8" Padding="5">
+                                <GroupBox x:Name="grpWindow2" Header="8窓2 識別座標" Margin="0,0,0,8" Padding="5">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,3">
                                             <RadioButton x:Name="rbCoord21" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
@@ -76,7 +102,7 @@
                                     </StackPanel>
                                 </GroupBox>
 
-                                <GroupBox x:Name="grpWindow3" Header="窓3 識別座標" Margin="0,0,0,8" Padding="5">
+                                <GroupBox x:Name="grpWindow3" Header="8窓3 識別座標" Margin="0,0,0,8" Padding="5">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,3">
                                             <RadioButton x:Name="rbCoord31" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
@@ -95,45 +121,246 @@
                                     </StackPanel>
                                 </GroupBox>
 
+                                <GroupBox x:Name="grpWindowSingle" Header="単窓 識別座標" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoordS1" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標1: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtXS1" Width="55" Text="100"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtYS1" Width="55" Text="100"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoordS2" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標2: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtXS2" Width="55" Text="200"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtYS2" Width="55" Text="100"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox x:Name="grpWindow3W1" Header="3窓1 識別座標" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W11" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標1: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W11" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W11" Width="55" Text="0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W12" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標2: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W12" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W12" Width="55" Text="0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox x:Name="grpWindow3W2" Header="3窓2 識別座標" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W21" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標1: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W21" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W21" Width="55" Text="0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W22" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標2: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W22" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W22" Width="55" Text="0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox x:Name="grpWindow3W3" Header="3窓3 識別座標" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W31" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標1: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W31" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W31" Width="55" Text="0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <RadioButton x:Name="rbCoord3W32" GroupName="CoordReg" Content="" Margin="0,0,5,0" VerticalAlignment="Center" Checked="CoordRadioButton_Checked"/>
+                                            <TextBlock Text="座標2: X=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtX3W32" Width="55" Text="0"/>
+                                            <TextBlock Text=" Y=" VerticalAlignment="Center"/>
+                                            <TextBox x:Name="txtY3W32" Width="55" Text="0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
 
                     <TabItem x:Name="tabInfo" Header="Info">
                         <TabControl x:Name="tabControlAuditions" SelectionChanged="TabControlAuditions_SelectionChanged">
+                            <TabItem x:Name="tabEreeBest" Header="えれぇベスト">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <StackPanel Margin="8">
+                                        <TextBlock x:Name="lblEreeBestTitle" Text="オーディション殴り先ルール - えれぇベスト" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+
+                                        <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule1Display1" Width="90">
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule1Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                        <ComboBoxItem Content="Da"/>
+                                                        <ComboBoxItem Content="Vi"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule2Display1" Width="90">
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule2Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo"/>
+                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                        <ComboBoxItem Content="Vi"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule3Display1" Width="90">
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule3Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo"/>
+                                                        <ComboBoxItem Content="Da"/>
+                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule4Display1" Width="90">
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule4Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo"/>
+                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                        <ComboBoxItem Content="Vi"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule5Display1" Width="90">
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule5Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo"/>
+                                                        <ComboBoxItem Content="Da"/>
+                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="8">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbEreeBestRule6Display1" Width="90">
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
+                                                    <ComboBox x:Name="cmbEreeBestRule6Display2" Width="90">
+                                                        <ComboBoxItem Content="Vo"/>
+                                                        <ComboBoxItem Content="Da"/>
+                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </TabItem>
+
                             <TabItem x:Name="tabSpotlight" Header="spotlight">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <StackPanel Margin="8">
                                         <TextBlock x:Name="lblSpotlightTitle" Text="Audition Target Rules - spotlight" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
                                         <GroupBox x:Name="grpSpotlightRule1" Header="VoDaVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule1Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule1Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule1Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule1Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule1Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo" IsSelected="True"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -144,33 +371,18 @@
                                         </GroupBox>
 
                                         <GroupBox x:Name="grpSpotlightRule2" Header="VoViDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule2Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule2Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule2Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule2Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule2Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -181,33 +393,18 @@
                                         </GroupBox>
 
                                         <GroupBox x:Name="grpSpotlightRule3" Header="DaVoVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule3Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule3Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule3Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule3Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule3Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -218,33 +415,18 @@
                                         </GroupBox>
 
                                         <GroupBox x:Name="grpSpotlightRule4" Header="DaViVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule4Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule4Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule4Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule4Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule4Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -255,33 +437,18 @@
                                         </GroupBox>
 
                                         <GroupBox x:Name="grpSpotlightRule5" Header="ViVoDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule5Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule5Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule5Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule5Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule5Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -292,33 +459,18 @@
                                         </GroupBox>
 
                                         <GroupBox x:Name="grpSpotlightRule6" Header="ViDaVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule6Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule6Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbSpotlightRule6Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbSpotlightRule6Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbSpotlightRule6Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -337,33 +489,18 @@
                                         <TextBlock x:Name="lblOdotteTitle" Text="オーディション殴り先ルール - 踊っていいとも" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
                                         <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule1Coord1RGB" Width="90">
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule1Coord2RGB" Width="90">
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule1Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule1Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule1Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo" IsSelected="True"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -374,33 +511,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule2Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位 " Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule2Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule2Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule2Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule2Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -411,33 +533,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule3Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule3Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule3Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule3Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule3Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -448,33 +555,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule4Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule4Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule4Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule4Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule4Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -485,33 +577,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule5Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule5Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text="が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule5Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule5Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule5Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -522,33 +599,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule6Coord1RGB" Width="90">
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule6Coord2RGB" Width="90">
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbOdotteRule6Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbOdotteRule6Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbOdotteRule6Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -567,33 +629,18 @@
                                         <TextBlock x:Name="lblLegendTitle" Text="Audition Target Rules - legend" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
                                         <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule1Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule1Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule1Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule1Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule1Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo" IsSelected="True"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -604,33 +651,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule2Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule2Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule2Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule2Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule2Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -641,33 +673,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule3Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule3Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule3Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule3Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule3Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -678,33 +695,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule4Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule4Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule4Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule4Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule4Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -715,33 +717,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule5Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule5Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule5Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule5Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule5Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -752,33 +739,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule6Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule6Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbLegendRule6Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbLegendRule6Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbLegendRule6Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -797,33 +769,18 @@
                                         <TextBlock x:Name="lblNanasaiTitle" Text="Audition Target Rules - Nanasai" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
                                         <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule1Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule1Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule1Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule1Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule1Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo" IsSelected="True"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -834,33 +791,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule2Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule2Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule2Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule2Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule2Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -871,33 +813,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule3Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule3Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule3Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule3Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule3Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -908,33 +835,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule4Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule4Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule4Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule4Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule4Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -945,33 +857,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule5Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule5Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule5Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule5Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule5Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -982,33 +879,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule6Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule6Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbNanasaiRule6Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbNanasaiRule6Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbNanasaiRule6Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -1027,33 +909,18 @@
                                         <TextBlock x:Name="lblUtahimeTitle" Text="Audition Target Rules - Utahime" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
                                         <GroupBox Header="VoDaVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule1Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule1Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule1Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule1Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule1Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo" IsSelected="True"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -1064,33 +931,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="VoViDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule2Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule2Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule2Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vo が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule2Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule2Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -1101,33 +953,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaVoVi" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule3Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule3Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule3Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule3Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule3Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -1138,33 +975,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="DaViVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule4Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule4Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule4Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Da が1位、Vi が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule4Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi" IsSelected="True"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule4Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da" IsSelected="True"/>
@@ -1175,33 +997,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViVoDa" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule5Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule5Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule5Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Da" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Vo が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule5Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo"/>
+                                                <ComboBoxItem Content="Da" IsSelected="True"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule5Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -1212,33 +1019,18 @@
                                         </GroupBox>
 
                                         <GroupBox Header="ViDaVo" Margin="0,0,0,10" Padding="8">
-                                            <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標1:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule6Coord1RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が1位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="座標2:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule6Coord2RGB" Width="90">`n
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vo"/>
-                                                        <ComboBoxItem Content="Vi" IsSelected="True"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" が2位" Margin="5,0"/>
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock Text="表示:" Width="60"/>
-                                                    <ComboBox x:Name="cmbUtahimeRule6Display1" Width="90">`n
-                                                        <ComboBoxItem Content="Vo" IsSelected="True"/>
-                                                        <ComboBoxItem Content="Da"/>
-                                                        <ComboBoxItem Content="Vi"/>
-                                                    </ComboBox>
-                                                    <TextBlock Text=" → " Margin="5,0"/>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                <TextBlock Text="Vi が1位、Da が2位" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                            <TextBlock Text="表示:" Width="60"/>
+                                            <ComboBox x:Name="cmbUtahimeRule6Display1" Width="90">`n
+                                                <ComboBoxItem Content="Vo" IsSelected="True"/>
+                                                <ComboBoxItem Content="Da"/>
+                                                <ComboBoxItem Content="Vi"/>
+                                            </ComboBox>
+                                            <TextBlock Text=" → " Margin="2,0"/>
                                                     <ComboBox x:Name="cmbUtahimeRule6Display2" Width="90">`n
                                                         <ComboBoxItem Content="Vo"/>
                                                         <ComboBoxItem Content="Da"/>
@@ -1256,91 +1048,108 @@
                     <TabItem x:Name="tabFixedClick" Header="定点クリック">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="8">
-                                <TextBlock Text="定点クリック設定" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
-                                
-                                <!-- 判別キーと定点クリック有効 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                     <CheckBox x:Name="chkAutoClickEnabled" Content="定点クリック有効" IsChecked="True" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                                    <TextBlock Text="判別キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBlock Text="オデ入室キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                     <TextBox x:Name="txtJudgeKey" Text="Space" Width="50" Margin="0,0,0,0"/>
+                                    <Button Content="パターン編集" Width="80" Height="25" Click="BtnOpenPatternEditor_Click" Margin="20,0,0,0"/>
                                 </StackPanel>
-                                
-                                <!-- 座標登録 -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="座標登録キー:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <TextBox x:Name="txtFixedClickRegKey" Text="T" Width="40" Margin="0,0,10,0"/>
-                                    <TextBlock x:Name="txtFixedClickRegStatus" Text="(アクティブ: なし)" Foreground="Blue" VerticalAlignment="Center"/>
+
+                                <StackPanel x:Name="presetRegArea" Margin="0,5,0,0">
+                                    <!-- 編集エリア -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,3">
+                                        <TextBlock Text="名前:" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                        <TextBox x:Name="txtPresetName" Width="80" Margin="0,0,10,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                                        <TextBlock Text="X:" VerticalAlignment="Center" Width="18"/>
+                                        <TextBox x:Name="txtPresetX" Width="60" Margin="0,0,10,0"/>
+                                        <TextBlock Text="Y:" VerticalAlignment="Center" Width="18"/>
+                                        <TextBox x:Name="txtPresetY" Width="60" Margin="0,0,10,0"/>
+                                        <TextBlock Text="遅延:" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                        <TextBox x:Name="txtPresetDelay" Width="50" Margin="0,0,5,0"/>
+                                        <RepeatButton Content="▲" Width="20" Height="12" FontSize="8" Click="BtnPresetDelayUp_Click" VerticalAlignment="Top"/>
+                                        <RepeatButton Content="▼" Width="20" Height="12" FontSize="8" Click="BtnPresetDelayDown_Click" VerticalAlignment="Bottom"/>
+                                    </StackPanel>
+                                    <!-- ボタン -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                                        <Button Content="作成" Width="45" Height="25" Click="BtnAddPreset_Click" Margin="0,0,5,0"/>
+                                        <Button Content="削除" Width="45" Height="25" Click="BtnDeletePreset_Click" Margin="0,0,5,0"/>
+                                        <Button Content="保存" Width="45" Height="25" Click="BtnApplyPreset_Click" Margin="0,0,5,0"/>
+                                        <Button Content="↑" Width="30" Height="25" Click="BtnMovePresetUp_Click" Margin="0,0,3,0"/>
+                                        <Button Content="↓" Width="30" Height="25" Click="BtnMovePresetDown_Click"/>
+                                    </StackPanel>
+                                    <!-- プリセット一覧 -->
+                                    <DataGrid x:Name="dgPresets" AutoGenerateColumns="False" IsReadOnly="True"
+                                              MaxHeight="200" SelectionMode="Single" SelectionChanged="DgPresets_SelectionChanged"
+                                              HeadersVisibility="Column" CanUserSortColumns="False" CanUserReorderColumns="False"
+                                              CanUserResizeRows="False" GridLinesVisibility="All" Margin="0,5,0,0">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="80"/>
+                                            <DataGridTextColumn Header="X" Binding="{Binding X}" Width="60"/>
+                                            <DataGridTextColumn Header="Y" Binding="{Binding Y}" Width="60"/>
+                                            <DataGridTextColumn Header="遅延" Binding="{Binding Delay}" Width="50"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </StackPanel>
-                                
-                                <TabControl>
-                                    <!-- 窓1用 -->
-                                    <TabItem Header="窓1">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
-                                            <StackPanel Margin="5">
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C1" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click1" Content="" IsChecked="True" Width="20"/><TextBlock Text="1: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X1" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y1" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D1" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C2" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click2" Content="" IsChecked="False" Width="20"/><TextBlock Text="2: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X2" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y2" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D2" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C3" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click3" Content="" IsChecked="False" Width="20"/><TextBlock Text="3: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X3" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y3" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D3" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C4" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click4" Content="" IsChecked="False" Width="20"/><TextBlock Text="4: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X4" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y4" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D4" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C5" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click5" Content="" IsChecked="False" Width="20"/><TextBlock Text="5: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X5" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y5" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D5" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C6" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click6" Content="" IsChecked="False" Width="20"/><TextBlock Text="6: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X6" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y6" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D6" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C7" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click7" Content="" IsChecked="False" Width="20"/><TextBlock Text="7: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X7" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y7" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D7" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C8" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click8" Content="" IsChecked="False" Width="20"/><TextBlock Text="8: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X8" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y8" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D8" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW1C9" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW1Click9" Content="" IsChecked="False" Width="20"/><TextBlock Text="9: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW1X9" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW1Y9" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW1D9" Width="40" Text="0"/></StackPanel>
-                                            </StackPanel>
-                                        </ScrollViewer>
-                                    </TabItem>
-                                    
-                                    <!-- 窓2用 -->
-                                    <TabItem Header="窓2">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
-                                            <StackPanel Margin="5">
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C1" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click1" Content="" IsChecked="True" Width="20"/><TextBlock Text="1: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X1" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y1" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D1" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C2" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click2" Content="" IsChecked="False" Width="20"/><TextBlock Text="2: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X2" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y2" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D2" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C3" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click3" Content="" IsChecked="False" Width="20"/><TextBlock Text="3: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X3" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y3" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D3" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C4" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click4" Content="" IsChecked="False" Width="20"/><TextBlock Text="4: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X4" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y4" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D4" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C5" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click5" Content="" IsChecked="False" Width="20"/><TextBlock Text="5: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X5" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y5" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D5" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C6" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click6" Content="" IsChecked="False" Width="20"/><TextBlock Text="6: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X6" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y6" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D6" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C7" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click7" Content="" IsChecked="False" Width="20"/><TextBlock Text="7: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X7" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y7" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D7" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C8" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click8" Content="" IsChecked="False" Width="20"/><TextBlock Text="8: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X8" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y8" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D8" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW2C9" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW2Click9" Content="" IsChecked="False" Width="20"/><TextBlock Text="9: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW2X9" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW2Y9" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW2D9" Width="40" Text="0"/></StackPanel>
-                                            </StackPanel>
-                                        </ScrollViewer>
-                                    </TabItem>
-                                    
-                                    <!-- 窓3用 -->
-                                    <TabItem Header="窓3">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
-                                            <StackPanel Margin="5">
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C1" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click1" Content="" IsChecked="True" Width="20"/><TextBlock Text="1: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X1" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y1" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D1" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C2" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click2" Content="" IsChecked="False" Width="20"/><TextBlock Text="2: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X2" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y2" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D2" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C3" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click3" Content="" IsChecked="False" Width="20"/><TextBlock Text="3: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X3" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y3" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D3" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C4" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click4" Content="" IsChecked="False" Width="20"/><TextBlock Text="4: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X4" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y4" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D4" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C5" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click5" Content="" IsChecked="False" Width="20"/><TextBlock Text="5: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X5" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y5" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D5" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C6" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click6" Content="" IsChecked="False" Width="20"/><TextBlock Text="6: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X6" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y6" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D6" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C7" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click7" Content="" IsChecked="False" Width="20"/><TextBlock Text="7: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X7" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y7" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D7" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C8" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click8" Content="" IsChecked="False" Width="20"/><TextBlock Text="8: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X8" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y8" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D8" Width="40" Text="0"/></StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3"><RadioButton x:Name="rbW3C9" GroupName="FixedClickReg" Checked="FixedClickRadioButton_Checked"/><CheckBox x:Name="chkW3Click9" Content="" IsChecked="False" Width="20"/><TextBlock Text="9: X=" VerticalAlignment="Center"/><TextBox x:Name="txtW3X9" Width="50" Text="0"/><TextBlock Text=" Y=" VerticalAlignment="Center"/><TextBox x:Name="txtW3Y9" Width="50" Text="0"/><TextBlock Text=" 遅延:" VerticalAlignment="Center"/><TextBox x:Name="txtW3D9" Width="40" Text="0"/></StackPanel>
-                                            </StackPanel>
-                                        </ScrollViewer>
-                                    </TabItem>
-                                </TabControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem x:Name="tabProgression" Header="オデ進行">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="8">
+                                <TextBlock Text="オーディション進行設定" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
+                                <TextBlock Text="窓ごとにオーディション進行とボマー表示を設定します" Foreground="Gray" FontSize="11" Margin="0,0,0,8"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="対象窓:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="cmbProgressionWindow" Width="100" SelectionChanged="CmbProgressionWindow_SelectionChanged">
+                                        <ComboBoxItem Content="8窓1" Tag="1" IsSelected="True"/>
+                                        <ComboBoxItem Content="8窓2" Tag="2"/>
+                                        <ComboBoxItem Content="8窓3" Tag="3"/>
+                                        <ComboBoxItem Content="単窓" Tag="0"/>
+                                        <ComboBoxItem Content="3窓1" Tag="4"/>
+                                        <ComboBoxItem Content="3窓2" Tag="5"/>
+                                        <ComboBoxItem Content="3窓3" Tag="6"/>
+                                    </ComboBox>
+                                    <Button Content="現在の窓から全窓にコピー" Width="160" Height="25" Margin="10,0,0,0" Click="BtnCopyProgressionToAll_Click"/>
+                                </StackPanel>
+
+                                <GroupBox Header="ボマー表示" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel>
+                                        <TextBlock Text="ボマーを表示する週を選択" Foreground="Gray" FontSize="11" Margin="0,0,0,5"/>
+                                        <WrapPanel x:Name="bomberCheckContainer"/>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox Header="山あり進行" Margin="0,0,0,8" Padding="5">
+                                    <StackPanel x:Name="yamaAriContainer"/>
+                                </GroupBox>
+
+                                <GroupBox Header="山なし進行" Padding="5">
+                                    <StackPanel x:Name="yamaNashiContainer"/>
+                                </GroupBox>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
                 </TabControl>
 
-
-                <StackPanel Orientation="Horizontal" Margin="0,10">
-                    <TextBlock x:Name="lblMousePos" Text="マウス座標: " Width="80"/>
-                    <TextBlock x:Name="txtMousePosition" Text="X=0, Y=0" Foreground="Blue"/>
-                </StackPanel>
-
-                <GroupBox x:Name="grpWeekInfo" Header="週情報" Margin="0,5,0,10" Padding="5">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="lblWeek" Text="現在の週:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <TextBox x:Name="txtWeek" Width="50" Text="4-1" IsReadOnly="True"/>
-                        <Button x:Name="btnWeekBack" Content="◀" Width="30" Height="25" Click="BtnWeekBack_Click" Margin="10,0,5,0"/>
-                        <Button x:Name="btnWeekForward" Content="▶" Width="30" Height="25" Click="BtnWeekForward_Click"/>
+                <GroupBox x:Name="grpWeekInfo" Header="週情報" Margin="0,10,0,10" Padding="5">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock x:Name="lblWeek" Text="現在の週:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox x:Name="txtWeek" Width="50" Text="4-1" IsReadOnly="True"/>
+                            <Button x:Name="btnWeekBack" Content="◀" Width="30" Height="25" Click="BtnWeekBack_Click" Margin="10,0,5,0"/>
+                            <Button x:Name="btnWeekForward" Content="▶" Width="30" Height="25" Click="BtnWeekForward_Click"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="モード:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <Button x:Name="btnToggleYama" Content="山あり" Width="70" Height="25" Click="BtnToggleYama_Click" Background="LimeGreen" FontWeight="Bold"/>
+                            <TextBlock x:Name="txtYamaModeStatus" Text="山あり" FontWeight="Bold" FontSize="14" Foreground="Green" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <TextBlock Text="切替キー:" VerticalAlignment="Center" Margin="15,0,3,0"/>
+                            <TextBox x:Name="txtYamaToggleKey" Text="" Width="40"/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 

@@ -1,0 +1,82 @@
+﻿<Window x:Class="laptimer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:laptimer"
+        mc:Ignorable="d"
+        Title="Lap Timer" Height="600" Width="480"
+        Background="#1E1E2E" Focusable="True">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- キー選択 -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="計測キー:" Foreground="#CDD6F4" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBox x:Name="HotkeyBox" Width="200" Height="30" FontSize="14"
+                         IsReadOnly="True" IsReadOnlyCaretVisible="False"
+                         Text="Space" Background="#313244" Foreground="#CDD6F4"
+                         BorderBrush="#585B70" TextAlignment="Center"
+                         VerticalContentAlignment="Center" Cursor="Hand"
+                         GotFocus="HotkeyBox_GotFocus" LostFocus="HotkeyBox_LostFocus"/>
+            </StackPanel>
+            <TextBlock x:Name="HotkeyHint" Text="" Foreground="#6C7086" FontSize="11"
+                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- 総時間 -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="総時間" Foreground="#A6ADC8" FontSize="14" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="TotalTimeText" Text="00:00:00.0" Foreground="#CBA6F7"
+                       FontSize="42" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- 時速 -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="時速" Foreground="#A6ADC8" FontSize="14" HorizontalAlignment="Center"/>
+            <TextBlock Text="目標: 18,648,649 /h" Foreground="#F38BA8"
+                       FontSize="32" FontFamily="Consolas" FontWeight="Bold"
+                       TextAlignment="Center" Width="380" Margin="0,2,0,0"/>
+            <TextBlock x:Name="SpeedText" Text="0 /h" Foreground="#89B4FA"
+                       FontSize="32" FontFamily="Consolas" FontWeight="Bold"
+                       TextAlignment="Center" Width="380"/>
+        </StackPanel>
+
+        <!-- 現在のラップタイマー -->
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="現在のラップ" Foreground="#A6ADC8" FontSize="14" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock x:Name="LapTimeText" Text="00:00.0" Foreground="#A6E3A1"
+                           FontSize="36" FontFamily="Consolas" FontWeight="Bold"/>
+                <TextBlock x:Name="DiffText" Text="" Foreground="#6C7086"
+                           FontSize="20" FontFamily="Consolas" FontWeight="Bold"
+                           VerticalAlignment="Bottom" Margin="8,0,0,6"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- ラップ履歴 -->
+        <ListBox x:Name="LapList" Grid.Row="4" Margin="0,4,0,10"
+                 Background="#313244" Foreground="#CDD6F4" FontSize="14" FontFamily="Consolas"
+                 BorderBrush="#45475A" BorderThickness="1"/>
+
+        <!-- ボタン -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="ストップ" Click="StopButton_Click"
+                    Width="120" Height="36" FontSize="16"
+                    Background="#45475A" Foreground="#CDD6F4" BorderBrush="#585B70"
+                    Cursor="Hand" Margin="0,0,16,0"/>
+            <Button Content="リセット" Click="ResetButton_Click"
+                    Width="120" Height="36" FontSize="16"
+                    Background="#45475A" Foreground="#CDD6F4" BorderBrush="#585B70"
+                    Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

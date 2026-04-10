@@ -43,6 +43,7 @@ namespace audition_nagurisaki
         private string _name = "";
         private string _hotkey = "";
         private int _windowNumber = -1;
+        private bool _advanceWeek = false;
         public string Name
         {
             get => _name;
@@ -60,6 +61,14 @@ namespace audition_nagurisaki
         {
             get => _windowNumber;
             set { _windowNumber = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowNumber))); }
+        }
+        /// <summary>
+        /// パターン実行後に週を進める
+        /// </summary>
+        public bool AdvanceWeek
+        {
+            get => _advanceWeek;
+            set { _advanceWeek = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AdvanceWeek))); }
         }
         public List<string> PresetNames { get; set; } = new();
         public event PropertyChangedEventHandler? PropertyChanged;

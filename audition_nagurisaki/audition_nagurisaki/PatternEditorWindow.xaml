@@ -40,6 +40,7 @@
                 <ComboBoxItem Content="3窓2" Tag="5"/>
                 <ComboBoxItem Content="3窓3" Tag="6"/>
             </ComboBox>
+            <CheckBox x:Name="chkAdvanceWeek" Content="週進める" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <Button Content="パターン追加" Width="80" Height="25" Click="BtnAddPattern_Click" Margin="0,0,5,0"/>
             <Button Content="更新" Width="50" Height="25" Click="BtnUpdatePattern_Click" Margin="0,0,5,0"/>
             <Button Content="削除" Width="50" Height="25" Click="BtnDeletePattern_Click" Margin="0,0,5,0"/>

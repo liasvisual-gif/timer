@@ -80,12 +80,14 @@ namespace audition_nagurisaki
                 txtPatternName.Text = _patterns[patIdx].Name;
                 txtPatternHotkey.Text = _patterns[patIdx].Hotkey;
                 SelectWindowComboBox(_patterns[patIdx].WindowNumber);
+                chkAdvanceWeek.IsChecked = _patterns[patIdx].AdvanceWeek;
             }
             else
             {
                 txtPatternName.Text = "";
                 txtPatternHotkey.Text = "";
                 cmbPatternWindow.SelectedIndex = 0;
+                chkAdvanceWeek.IsChecked = false;
             }
             RefreshSteps();
         }
@@ -94,7 +96,7 @@ namespace audition_nagurisaki
         {
             string name = txtPatternName.Text.Trim();
             if (string.IsNullOrEmpty(name)) name = $"パターン{_patterns.Count + 1}";
-            _patterns.Add(new ClickPattern { Name = name, Hotkey = txtPatternHotkey.Text.Trim(), WindowNumber = GetSelectedWindowNumber() });
+            _patterns.Add(new ClickPattern { Name = name, Hotkey = txtPatternHotkey.Text.Trim(), WindowNumber = GetSelectedWindowNumber(), AdvanceWeek = chkAdvanceWeek.IsChecked == true });
             RefreshPatternList();
             dgPatterns.SelectedIndex = dgPatterns.Items.Count - 1;
         }
@@ -107,6 +109,7 @@ namespace audition_nagurisaki
                 _patterns[patIdx].Name = txtPatternName.Text;
                 _patterns[patIdx].Hotkey = txtPatternHotkey.Text.Trim();
                 _patterns[patIdx].WindowNumber = GetSelectedWindowNumber();
+                _patterns[patIdx].AdvanceWeek = chkAdvanceWeek.IsChecked == true;
                 RefreshPatternList();
             }
         }

@@ -273,7 +273,15 @@ namespace audition_nagurisaki
                         if (pattern.WindowNumber == -1 || pattern.WindowNumber == activeWindow)
                         {
                             _ = ExecuteFixedClicks(pattern);
-                            txtStatus.Text = $"パターン実行: {pattern.Name}";
+                            if (pattern.AdvanceWeek)
+                            {
+                                // 週更新の直前に判別結果をオーバーレイに反映
+                                PerformWindowJudgement(activeWindow);
+                            }
+                            else
+                            {
+                                txtStatus.Text = $"パターン実行: {pattern.Name}";
+                            }
                             return;
                         }
                     }
